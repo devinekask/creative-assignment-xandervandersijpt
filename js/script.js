@@ -1,28 +1,73 @@
 import * as THREE from 'https://cdn.skypack.dev/pin/three@v0.133.1-nP52U8LARkTRhxRcba9x/mode=imports/optimized/three.js';
 import {GLTFLoader} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/loaders/GLTFLoader.js';
 import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/controls/OrbitControls.js';
+// import { EffectComposer } from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/postprocessing/EffectComposer.js';
+// import { RenderPass } from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/postprocessing/RenderPass.js';
+// import { ShaderPass } from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/postprocessing/ShaderPass.js';
+// import { UnrealBloomPass } from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/postprocessing/UnrealBloomPass.js';
 {
+    //NEXT STEPS:
+    //1. make the start-up screen start camera look to origin, then smoothly move upwards to where the 'intro info' appears.
+    //2. render rectangular blocks (representing the statues in later stage)
+    //3. render numbers on each statue as identifiers
+    //3. incorporate motion detection of face to move around
+
+    // use web audio api to play the background audio
+    // try incorporating a voice to read our intro aloud
+
+    //IMPROVEMENTS TO MAKE
+    //1. add the unrealbloom effect to lightbulbs to give them a glow
+    //2. improve fog in the experience
+    //3. Background color into gradient to darker shade. Maybe try out small stars?
     
+    //function to generate the menu at startup
+    const handleClickEnter = e => {
+        e.preventDefault();
+        console.log(`clicked enter experience`);
+
+        //animate menu with gsap
+        gsap.to(".circle", {duration: 3, scale:2, opacity: 0});
+        gsap.to(".circle", {duration: 1.5, rotation: `180deg`});
+        gsap.to(".menu__copy", {duration: 3, opacity: 0});
+        gsap.to(".fog", {duration: 3, opacity: 0});
+        const $menuWrapper = document.querySelector(`.menu-wrapper`);
+        setTimeout( function() { 
+            $menuWrapper.style.display = `none`; 
+            //animate the camera controls of scene to move upwards.
+        gsap.to(controls.target, { x:0,y:30,z:0, duration: 5});
+        }, 3000);
+    }
+
     //defining some global variables for our project
-    //declaring our scene, camera and renderer to initialize our three.js scene.
-    const scene = new THREE.Scene();
-    //perspective camera: Field of view, aspect ratio, near and far clipping plane.
-    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight,0.1, 1000);
-    
-    const renderer = new THREE.WebGLRenderer();
-    //Adding controls for our camera to move with an event listener (currently autorotating)
-    const controls = new OrbitControls(camera, renderer.domElement);
-    camera.position.set(0,30,10);
-    controls.target.set(10,30,10);
-    controls.update();
-    controls.autoRotate = true;
+    let scene, camera, renderer, controls, composer;
+
+
+    const sceneSetup = () => {
+        //declaring our scene, camera and renderer to initialize our three.js scene.
+        scene = new THREE.Scene();
+        //perspective camera: Field of view, aspect ratio, near and far clipping plane.
+        camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight,0.1, 1000);
+
+        renderer = new THREE.WebGLRenderer();
+        //Adding controls for our camera to move with an event listener (currently autorotating)
+        controls = new OrbitControls(camera, renderer.domElement);
+        camera.position.set(0,30,10);
+        controls.target.set(0,0,0);
+        controls.update();
+        //setting a target our camera is looking at
+        //controls.target.set(0,30,0);
+        // controls.target.set(0,30,0);
+        controls.enableDamping = true;
+        controls.enableZoom = false;
+        controls.update();
+        //controls.autoRotate = true;
+    }
 
     const handleWindowResize = () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
 
         renderer.setSize( window.innerWidth, window.innerHeight );
-
     }
 
     //random function to generate a random number between a min and max
@@ -53,8 +98,8 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
     const renderHemiLight = () => {
         //adding a hemisphere light to light up the entire scene
-        const hemiLight = new THREE.HemisphereLight(`#ffffff`,`#7E89DD`,0.1);
-        scene.add(hemiLight);
+        const hemiLight = new THREE.HemisphereLight(`#151E39`,`#ffffff`,0.1);
+        //scene.add(hemiLight);
     }
 
     const renderScenicLights = () => {
@@ -74,7 +119,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
             //add a light source to our scene
             const light = new THREE.PointLight(`#ffffff`, 0.3);
             //adding a sphere to show the location of the light
-            const sphere = new THREE.SphereGeometry(1.5,16,8);
+            const sphere = new THREE.SphereGeometry(3,16,8);
             light.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xffffff } ) ) );
             //calculate the coordinates so the lights are placed evenly along circular path, the Y is a randomized value to place the bulbs at different heights
             const positionX = Math.round(lightsRadius * (Math.cos(i* (2 * Math.PI / lightsAmount ))));
@@ -87,7 +132,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
             const loader = new GLTFLoader();
             loader.load(`./assets/sceneLight.glb`, 
                 function (gltf) {
-                    console.log(`loaded scene`);
+                    console.log(`loaded scene lightbulb`);
                     const mesh = gltf.scene;
                     mesh.position.set(positionX,0,positionZ);
                     //making the vertical scaling random here to match with lightbulb height, using the normal height to calculate the right factor height
@@ -100,6 +145,13 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
     }
 
     const init = () => {
+        //drawing a menu using dom elements and javascript, so that our scene can render whilst the startup is displayed 
+        const $enterLink = document.querySelector(`.link`);
+        $enterLink.addEventListener(`click`, handleClickEnter);
+        gsap.to(".menu__copy", {duration: 1.5, opacity: 1});
+
+        sceneSetup();
+
         //add a resize listener to our window, then redraw the scene to fit.
         window.addEventListener('resize', handleWindowResize);
 
@@ -109,11 +161,10 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         renderer.setPixelRatio( window.devicePixelRatio);
         //adding our rendering canvas to our HTML document
         document.body.appendChild(renderer.domElement);
-
         
         //set a fog and background color on our scene
-        scene.background = new THREE.Color(`#7E89DD`);
-        scene.fog = new THREE.Fog( `#7E89DD`, 1, 300);
+        scene.background = new THREE.Color(`#151E39`);
+        scene.fog = new THREE.Fog( `#151E39`, 1, 380);
 
         //adding a circular floor to our scene
         renderFloor();
