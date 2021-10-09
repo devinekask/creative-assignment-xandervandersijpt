@@ -24,6 +24,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
     //1. add the unrealbloom effect to lightbulbs to give them a glow
     //2. improve fog in the experience
     //3. Background color into gradient to darker shade. Maybe try out small stars
+    //4. look into throttling for the cursor eventlistener
     
     
     //function to generate the menu at startup
@@ -72,12 +73,18 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         camera.position.set(0,30,10);
         controls.target.set(0,0,0);
         controls.update();
+
+        //implementing mousemove rotation
+        
+
         //setting a target our camera is looking at
         controls.enableDamping = true;
         //controls.enableZoom = false;
         controls.update();
         //controls.autoRotate = true;
     }
+
+
 
     const handleWindowResize = () => {
         camera.aspect = window.innerWidth / window.innerHeight;
@@ -93,7 +100,6 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
     const animate = () => {
         requestAnimationFrame(animate);
         controls.update();
-        
         renderer.render(scene, camera);
     }
 
@@ -214,7 +220,6 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
         for(let i = 0; i < statuesAmount; i++) {
             const statueMesh = statueFile.clone(true);
-            console.log(statueMesh);
 
             //define the radius
             if(i % 2 === 0) {
@@ -229,7 +234,6 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
             const positionX = Math.round(statuesRadius * (Math.cos(i* (2 * Math.PI / statuesAmount ))));
             const positionY = 0;
             const positionZ = Math.round(statuesRadius * (Math.sin(i* (2 * Math.PI / statuesAmount ))));
-            console.log(positionX, positionZ);
             statueMesh.position.set(positionX, positionY, positionZ);
             //scale the tomb to fit in this scene
             statueMesh.rotation.y = -(Math.PI / 2);
@@ -257,49 +261,32 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
             currentStatue.number = i;
             currentStatue.position = {x: positionX, y: 0, z: positionZ};
             statues.push(currentStatue);
-            console.log(statues);
         }
-        
     }
-
-    // const renderStatues = () => {
-        // loader.load(`./assets/tombLaurier.glb`, 
-        //     function (gltf) {
-        //         console.log(`loaded Tomb Laurier`);
-        //         const mesh = gltf.scene;
-        //         mesh.position.set(0,0,-50);
-        //         //scale the tomb to fit in this scene
-        //         mesh.rotation.y = -(Math.PI / 2);
-        //         mesh.scale.set(12,12,12);
-        //         scene.add(mesh);
-        //     }
-        // );
-        // //adding a number to this statue
-        // const textGeometry = new TextGeometry( '01', {
-        //     font: fontWispy,
-        //     size: 5,
-        //     height: 1,
-        //     curveSegments: 12,
-        //     bevelEnabled: false
-        // });
-
-        // var textMaterial = new THREE.MeshPhongMaterial( 
-        //     { color: 0xbbbbbb, specular: 0x151E39 }
-        // );
-        
-        // var mesh = new THREE.Mesh( textGeometry, textMaterial );
-        // mesh.geometry.center();
-        // mesh.position.set(0,10,-41);
-
-        // scene.add( mesh );
-    
-
 
     const init = async () => {
         //drawing a menu using dom elements and javascript, so that our scene can render whilst the startup is displayed 
         const $enterLink = document.querySelector(`.link`);
         $enterLink.addEventListener(`click`, handleClickEnter);
         gsap.to(".menu__copy", {duration: 1.5, opacity: 1});
+
+        //starting our angle at 1.57 (or PI/2);
+        var angle = Math.PI/2;
+        var radius = 10; 
+        window.addEventListener('mousemove', (e) => {
+            //execute function to check if mouse is in left or right 15% of screen, then move canvas accordingly
+            if(e.clientX < (window.innerWidth *0.15)){
+                // move left
+                camera.position.x = radius * Math.cos( angle );  
+                camera.position.z = radius * Math.sin( angle );
+                angle -= 0.001;
+            } else if(e.clientX > (window.innerWidth - (window.innerWidth *0.15))) {
+                // move right
+                camera.position.x = radius * Math.cos( angle );  
+                camera.position.z = radius * Math.sin( angle );
+                angle += 0.001;
+            }
+        });
 
         sceneSetup();
 
