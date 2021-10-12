@@ -1,6 +1,7 @@
 import * as THREE from 'https://cdn.skypack.dev/pin/three@v0.133.1-nP52U8LARkTRhxRcba9x/mode=imports/optimized/three.js';
 import {GLTFLoader} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/loaders/GLTFLoader.js';
 import {FontLoader} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/loaders/FontLoader.js';
+import {TTFLoader} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/loaders/TTFLoader.js';
 import {TextGeometry} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/geometries/TextGeometry.js';
 import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/controls/OrbitControls.js';
 // import {Text} from 'https://cdn.jsdelivr.net/npm/troika-three-text@0.43.0/dist/troika-three-text.umd.min.js';
@@ -10,6 +11,8 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 // import { UnrealBloomPass } from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/postprocessing/UnrealBloomPass.js';
 {
     //NEXT STEPS:
+    //0. Render intro info OK
+        //use speeck api to read the intro aloud
     //1. render numbers on each statue as identifiers OK
     //2. Make the statues rotate so they are face-first in the circle
     //3. incorporate motion detection of face to move around using ML5
@@ -18,6 +21,8 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         //1. Move in on statue number 4 automatically OK
         //2. Incorporate voice input OK
         //3. Render poem next to the statue
+        //4. Implement that when user says 'return', camera returns to center position of welcome to memoria
+    //END: add a loader screen that displays until scene is fully loaded
 
     // use web audio api to play the background audio
     // try incorporating a voice to read our intro aloud
@@ -59,15 +64,22 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
     //defining some global variables for our project
     let poseNet, video;
-    let scene, camera, renderer, controls, fontWispy, lampFile, statueFile, cameraAngle, cameraRadius;
+    let scene, camera, renderer, controls, fontWispy, fontPoppinsReg, lampFile, statueFile, cameraAngle, cameraRadius;
     let statues = [];
 
     const loadFont = () => {
         return new Promise((resolve,reject)=>{
-            //here our function should be implemented 
+            //load the BNWispy title font
             const fontLoader = new FontLoader();
             fontLoader.load('./assets/BNWispy.json', function(response) {
             fontWispy = response;
+
+            //load the Poppins font
+            const ttfLoader = new TTFLoader();
+            const ttfFontLoader = new FontLoader();
+            ttfLoader.load('./assets/Poppins-Light.ttf', function(response) {
+                fontPoppinsReg = ttfFontLoader.parse(response);
+            })
             resolve();
             });
         });
@@ -93,8 +105,6 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         controls.update();
         //controls.autoRotate = true;
     }
-
-
 
     const handleWindowResize = () => {
         camera.aspect = window.innerWidth / window.innerHeight;
@@ -138,7 +148,6 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         return new Promise((resolve,reject)=>{
             lampLoader.load(`./assets/sceneLight.glb`, 
                 function (gltf) {
-                    console.log(`loaded scene lightbulb`);
                     lampFile = gltf.scene;
                     resolve();
                 }
@@ -189,23 +198,49 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
     }
 
     const renderIntro = () => {
-        const textGeometry = new TextGeometry( 'Welcome, to Memoria.', {
+        const textMaterial = new THREE.MeshPhongMaterial( 
+            { color: 0xffffff, specular: 0x151E39 }
+        ); 
+        
+        const titleGeometry = new TextGeometry( `Welcome, to Memoria.`, {
             font: fontWispy,
-            size: 25,
+            size: 27,
             height: 1,
             curveSegments: 12,
             bevelEnabled: false
         });
 
-        var textMaterial = new THREE.MeshPhongMaterial( 
-            { color: 0xffffff, specular: 0x151E39 }
-          );
-        
-        var mesh = new THREE.Mesh( textGeometry, textMaterial );
-        mesh.geometry.center();
-        mesh.position.set(0,120,-300);
+        const titleMesh = new THREE.Mesh(titleGeometry, textMaterial);
+        titleMesh.geometry.center();
+        titleMesh.position.set(0, 120, -300);
 
-        scene.add( mesh );
+        const introGeometry = new TextGeometry(`Explore Memoria by moving your head from left to right.`, {
+            font: fontPoppinsReg,
+            size: 6,
+            height: 1,
+            curveSegments: 10,
+            bevelEnabled: false
+        });
+
+        const introMesh = new THREE.Mesh(introGeometry, textMaterial);
+        introMesh.geometry.center();
+        introMesh.position.set(0, 92, -300);
+
+        const introTwoGeometry = new TextGeometry(`If you want to hear a statue's memory, say it's number aloud.`, {
+            font: fontPoppinsReg,
+            size: 6,
+            height: 1,
+            curveSegments: 10,
+            bevelEnabled: false
+        });
+        
+        const introTwoMesh = new THREE.Mesh(introTwoGeometry, textMaterial);
+        introTwoMesh.geometry.center();
+        introTwoMesh.position.set(0, 80, -300);
+
+        scene.add(titleMesh);
+        scene.add(introMesh);
+        scene.add(introTwoMesh);
     }
 
     const loadStatue = () => {
