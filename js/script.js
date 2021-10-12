@@ -15,8 +15,8 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
     //3. incorporate motion detection of face to move around using ML5
     //4. Improve loading time by separating the loaders from the loops OK
     //5. When saying a statue name aloud, zoom in on that statue and make a poem appear next to it
-        //1. Move in on statue number 4 automatically
-        //2. Incorporate voice input
+        //1. Move in on statue number 4 automatically OK
+        //2. Incorporate voice input OK
         //3. Render poem next to the statue
 
     // use web audio api to play the background audio
@@ -48,11 +48,13 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
             $menuWrapper.style.display = `none`; 
             //animate the camera controls of scene to move upwards.
             gsap.to(controls.target, { x:0,y:30,z:0, duration: 5});
-            
         }, 3000);
+
+        //start the speech recognition after 8 seconds (so after the camera movement animation is over)
         setTimeout( function() {
-            focusStatue();
-        }, 10000)
+            //start up the speech recognition
+            launchSpeechRecognition();
+        }, 8000)
     }
 
     //defining some global variables for our project
@@ -110,18 +112,6 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         controls.update();
         renderer.render(scene, camera);
     }
-
-    // function animate() {
-
-    //     setTimeout( function() {
-    
-    //         requestAnimationFrame( animate );
-    
-    //     }, 1000 / 20 );
-
-    //     controls.update();
-    //     renderer.render(scene, camera);
-    // }
 
     const renderFloor = () => {
         //adding a circular floor to our scene
@@ -299,17 +289,14 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         }
     }
 
-    const focusStatue = () => {
+    const focusStatue = (voiceInput) => {
         //get the coordinates of the statue
-        console.log(statues[5]);
-        const positionX = statues[5].position.x;
-        const positionZ = statues[5].position.z;
+        const positionX = statues[voiceInput].position.x;
+        const positionZ = statues[voiceInput].position.z;
         console.log(positionX);
         console.log(positionZ);
 
         //change target of the camera to the statue, and position of camera to be in front of the statue
-        //camera.position.set(0,30,10);
-        //controls.target.set(positionX,positionY,positionZ);
         gsap.to(controls.target, {x:positionX, y:45, z:positionZ, duration: 4});
         gsap.to(camera.position, {x:positionX*0.9, y:45, z:positionZ*0.9, duration: 4});
     }
@@ -331,15 +318,98 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         
     }
 
+    const launchSpeechRecognition = () => {
+        if ("webkitSpeechRecognition" in window) {
+            console.log(`speech recognition available`);
+            
+            //define new speechRecognition
+            let speechRecognition = new webkitSpeechRecognition();
+            speechRecognition.continuous = false;
+            speechRecognition.interimResults = false;
+            speechRecognition.lang = `en-US`;
+            speechRecognition.maxAlternatives = 1;
+
+            const grammar = '#JSGF V1.0; grammar numbers; public <numbers> = one | two | three | four | five | six;';
+            const speechGrammarList = new webkitSpeechGrammarList();
+            speechGrammarList.addFromString(grammar, 1)
+            speechRecognition.grammars = speechGrammarList;
+            console.log(speechGrammarList[0].weight);
+
+            //start speech recognition when pressing the spacebar
+            document.addEventListener('keyup', e => {
+                if (e.code === 'Space') {
+                  console.log('Space pressed, initialise speech recognition');
+                  speechRecognition.start();
+                }
+            });
+
+            //define the callback functions, log that SR is listening, results etc.
+            speechRecognition.onstart = () => {
+                console.log(`SR is listening`);
+            }
+
+            speechRecognition.onend = () => {
+                console.log(`SR stopped listening`);
+            }
+
+            speechRecognition.onerror = e => {
+                console.log(`SR has an error`);
+                console.log(e.error);
+            }
+
+            speechRecognition.onresult = e => {
+                //show result in console
+                let speechResult = e.results[0][0].transcript;
+                console.log(speechResult);
+
+                //when there is a result, check if it matches one of the 6 numbers, and then call the focusStatue function on that number
+                switch(speechResult){
+                    case '1':
+                    case 'one':
+                        console.log(`input was one`);
+                        focusStatue(0);
+                        break;
+                    case '2':
+                    case 'two':
+                        console.log(`input was two`);
+                        focusStatue(1);
+                        break;
+                    case '3':
+                    case 'three':
+                        console.log(`input was three`);
+                        focusStatue(2);
+                        break;
+                    case '4':
+                    case 'four':
+                        console.log(`input was four`);
+                        focusStatue(3);
+                        break;
+                    case '5':
+                    case 'five':
+                        console.log(`input was five`);
+                        focusStatue(4);
+                        break;
+                    case '6':
+                    case 'six':
+                        console.log(`input was six`);
+                        focusStatue(5);
+                        break;
+                }
+            }
+          
+          } else {
+            console.log(`Speech Recognition Not Available`);
+        }
+    }
+
     const init = async () => {
         function hasGetUserMedia() {
             return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
           }
           if (hasGetUserMedia()) {
-            // Good to go!
             console.log(`has getUserMedia!`)
           } else {
-            alert("getUserMedia() is not supported by your browser");
+            console.log(`getUserMedia() is not supported by the browser.`);
         }
 
         hasGetUserMedia();
@@ -373,7 +443,8 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         // })
 
         //using p5 and ml5 to get nose position and use it as a cursor
-        
+
+
 
         //drawing a menu using dom elements and javascript, so that our scene can render whilst the startup is displayed 
         const $enterLink = document.querySelector(`.link`);
@@ -423,6 +494,8 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
         //render the scene using an animation loop
         animate();
+
+        
     }
 
     init();
