@@ -10,21 +10,27 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 // import { UnrealBloomPass } from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/postprocessing/UnrealBloomPass.js';
 {
     //NEXT STEPS:
-    //1. make the start-up screen start camera look to origin, then smoothly move upwards to where the 'intro info' appears. OK
-    //2. render rectangular blocks (representing the statues in later stage) (currently rendered singular statue multiple times) OK
-    //3. render numbers on each statue as identifiers OK
+    //1. render numbers on each statue as identifiers OK
+    //2. Make the statues rotate so they are face-first in the circle
     //3. incorporate motion detection of face to move around using ML5
     //4. Improve loading time by separating the loaders from the loops OK
-
+    //5. When saying a statue name aloud, zoom in on that statue and make a poem appear next to it
+        //1. Move in on statue number 4 automatically
+        //2. Incorporate voice input
+        //3. Render poem next to the statue
 
     // use web audio api to play the background audio
     // try incorporating a voice to read our intro aloud
+
+    //add a loading image at the beginning to ensure that everything is loaded before experience starts
 
     //IMPROVEMENTS TO MAKE
     //1. add the unrealbloom effect to lightbulbs to give them a glow
     //2. improve fog in the experience
     //3. Background color into gradient to darker shade. Maybe try out small stars
     //4. look into throttling for the cursor eventlistener
+    //5. add a check to see if the user has getUserMedia available, if not, we let our user navigate the experience with arrows or the hover effect left and right
+    //6. add hover link to the enter button
     
     
     //function to generate the menu at startup
@@ -44,10 +50,14 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
             gsap.to(controls.target, { x:0,y:30,z:0, duration: 5});
             
         }, 3000);
+        setTimeout( function() {
+            focusStatue();
+        }, 10000)
     }
 
     //defining some global variables for our project
-    let scene, camera, renderer, controls, fontWispy, lampFile, statueFile;
+    let poseNet, video;
+    let scene, camera, renderer, controls, fontWispy, lampFile, statueFile, cameraAngle, cameraRadius;
     let statues = [];
 
     const loadFont = () => {
@@ -70,16 +80,14 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         renderer = new THREE.WebGLRenderer();
         //Adding controls for our camera to move with an event listener (currently autorotating)
         controls = new OrbitControls(camera, renderer.domElement);
+        controls.enabled = false;
         camera.position.set(0,30,10);
         controls.target.set(0,0,0);
         controls.update();
 
-        //implementing mousemove rotation
-        
-
         //setting a target our camera is looking at
         controls.enableDamping = true;
-        //controls.enableZoom = false;
+        controls.enableZoom = false;
         controls.update();
         //controls.autoRotate = true;
     }
@@ -102,6 +110,18 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         controls.update();
         renderer.render(scene, camera);
     }
+
+    // function animate() {
+
+    //     setTimeout( function() {
+    
+    //         requestAnimationFrame( animate );
+    
+    //     }, 1000 / 20 );
+
+    //     controls.update();
+    //     renderer.render(scene, camera);
+    // }
 
     const renderFloor = () => {
         //adding a circular floor to our scene
@@ -264,29 +284,106 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         }
     }
 
+    const handleMousemoveWindow = e => {
+        //execute function to check if mouse is in left or right 15% of screen, then move canvas accordingly
+        if(e.clientX < (window.innerWidth *0.20)){
+            // move left
+            camera.position.x = cameraRadius * Math.cos( cameraAngle );  
+            camera.position.z = cameraRadius * Math.sin( cameraAngle );
+            cameraAngle -= 0.005;
+        } else if(e.clientX > (window.innerWidth - (window.innerWidth *0.20))) {
+            // move right
+            camera.position.x = cameraRadius * Math.cos( cameraAngle );  
+            camera.position.z = cameraRadius * Math.sin( cameraAngle );
+            cameraAngle += 0.005;
+        }
+    }
+
+    const focusStatue = () => {
+        //get the coordinates of the statue
+        console.log(statues[5]);
+        const positionX = statues[5].position.x;
+        const positionZ = statues[5].position.z;
+        console.log(positionX);
+        console.log(positionZ);
+
+        //change target of the camera to the statue, and position of camera to be in front of the statue
+        //camera.position.set(0,30,10);
+        //controls.target.set(positionX,positionY,positionZ);
+        gsap.to(controls.target, {x:positionX, y:45, z:positionZ, duration: 4});
+        gsap.to(camera.position, {x:positionX*0.9, y:45, z:positionZ*0.9, duration: 4});
+    }
+
+    const modelLoaded = () => {
+        console.log(`model loaded!`);
+        //start a loop that detects your face every 200 milliseconds
+        // setInterval(
+        //     function() {
+        //         faceapi.detectSingle(video, (err,results) => {
+        //             console.log(results);
+        //         });
+        //     }, 2000
+        // );
+
+    }
+
+    const detectResults = () => {
+        
+    }
+
     const init = async () => {
+        function hasGetUserMedia() {
+            return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+          }
+          if (hasGetUserMedia()) {
+            // Good to go!
+            console.log(`has getUserMedia!`)
+          } else {
+            alert("getUserMedia() is not supported by your browser");
+        }
+
+        hasGetUserMedia();
+
+        //Defining the detection options
+        // const detectionOptions = {
+        //     withLandmarks: true,
+        //     withDescriptors: false,
+        //     minConfidence:0.5,
+        // };
+
+        //create a video element in the document
+        // const videoElement = document.createElement(`video`);
+        // videoElement.setAttribute(`style`,`display:none`);
+        // videoElement.width = window.innerWidth;
+        // videoElement.height = window.innerHeight;
+        // document.body.appendChild(videoElement);
+
+        // //get the webcam input and set it as video sourceobject
+        // const constraints = {
+        //     video: true,
+        // };
+        // const videoInput = await navigator.mediaDevices.getUserMedia(constraints);
+        // videoElement.srcObject = videoInput;
+        // videoElement.play();
+
+        // //faceapi = ml5.faceApi(videoElement, detectionOptions, modelLoaded);
+        // poseNet = ml5.poseNet(videoElement, modelLoaded);
+        // poseNet.on(`pose`, (results) => {
+        //     console.log(results);
+        // })
+
+        //using p5 and ml5 to get nose position and use it as a cursor
+        
+
         //drawing a menu using dom elements and javascript, so that our scene can render whilst the startup is displayed 
         const $enterLink = document.querySelector(`.link`);
         $enterLink.addEventListener(`click`, handleClickEnter);
         gsap.to(".menu__copy", {duration: 1.5, opacity: 1});
 
         //starting our angle at 1.57 (or PI/2);
-        var angle = Math.PI/2;
-        var radius = 10; 
-        window.addEventListener('mousemove', (e) => {
-            //execute function to check if mouse is in left or right 15% of screen, then move canvas accordingly
-            if(e.clientX < (window.innerWidth *0.15)){
-                // move left
-                camera.position.x = radius * Math.cos( angle );  
-                camera.position.z = radius * Math.sin( angle );
-                angle -= 0.001;
-            } else if(e.clientX > (window.innerWidth - (window.innerWidth *0.15))) {
-                // move right
-                camera.position.x = radius * Math.cos( angle );  
-                camera.position.z = radius * Math.sin( angle );
-                angle += 0.001;
-            }
-        });
+        cameraAngle = Math.PI/2;
+        cameraRadius = 10; 
+        window.addEventListener('mousemove', handleMousemoveWindow);
 
         sceneSetup();
 
