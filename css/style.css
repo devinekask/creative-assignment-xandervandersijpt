@@ -170,3 +170,43 @@ canvas {
   visibility: visible;
   transform: scaleX(1);
 }
+
+
+/* styling for the poem class */
+.poem{
+  grid-row:1;
+  grid-column:1;
+  padding-left: 10vw;
+  align-self: center;
+  z-index: 100;
+
+  color:white;
+  display: none;
+}
+
+.poem--right{
+  padding-left: 60vw;
+}
+
+.poem__title{
+  font-family: Wispy;
+  font-size: 8rem;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+}
+
+.poem__line{
+  font-family: Poppins;
+  font-size: 1.3rem;
+  font-weight: 300;
+  line-height: 1.2;
+
+  max-width: 0%;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: max-width 1s linear;
+}
+
+.poem__line--verse{
+  margin-bottom: 0.5rem;
+}
