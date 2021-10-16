@@ -210,3 +210,9 @@ canvas {
 .poem__line--verse{
   margin-bottom: 0.5rem;
 }
+
+/* styling for the audio */
+.audio{
+  grid-row:1;
+  grid-column: 1;
+}
