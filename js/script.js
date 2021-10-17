@@ -11,17 +11,13 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 // import { UnrealBloomPass } from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/postprocessing/UnrealBloomPass.js';
 {
     //NEXT STEPS:
-    //0. Render intro info OK
-        //use speeck api to read the intro aloud
-    //2. Make the statues rotate so they are face-first in the circle
     //3. incorporate motion detection of face to move around using ML5
-    //4. Improve loading time by separating the loaders from the loops OK
     //5. When saying a statue name aloud, zoom in on that statue and make a poem appear next to it
         //1. Move in on statue number 4 automatically OK
         //2. Incorporate voice input OK
-        //3. Render poem next to the statue line per line
+        //3. Render poem next to the statue line per line OK
         //4. Implement that when user says 'return', camera returns to center position of welcome to memoria
-    //6. add background audio to the experience.
+        //5. let background audio play
     //7. incorporate drawing onto sculpture, so our user can draw using ML5.
         //1. add small 'unlit' neon signs such as a moon, a heart, a tear...
         //2. when the user zooms in on statue, activate a checker that checks whether the cursor moves over the coordinates of this neon light
@@ -29,11 +25,11 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
     //END: add a loader screen that displays until scene is fully loaded
 
     // try incorporating a voice to read our intro aloud
+    //add 
 
     //add a loading image at the beginning to ensure that everything is loaded before experience starts
 
     //IMPROVEMENTS TO MAKE
-    //1. add the unrealbloom effect to lightbulbs to give them a glow TOO TAXING ON PERFORMANCE
     //2. improve fog in the experience
     //3. Background color into gradient to darker shade. Maybe try out small stars
     //4. look into throttling for the cursor eventlistener
@@ -42,16 +38,18 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
     
     //defining our poems in array
     const poems = [
-        {title:`celeste`, verseLength: 2, lines:[`vibrant as the sun`,`her smile could make me blush`,`she draws me in`,`with every ray of light`,`closely warming me`,`a distance that she crossed`,`it's a feeling that I get`,`waiting for our hearts to align`,`as I'm the crescent moon`,`reflecting everything she gives`,`every night I feel awakened`,`dream of just a lingering touch`,`cursed be our lips`,`for they will never touch`,`intertwined forever`,`yet forever to be apart`]},
-        {title:`to stay`, verseLength: 2, lines:[`Took a train out of the city`,`Followed the wind to the waves`,`Bathed in the sunlight by the window`,`In a temporary home I made`,`Let the calm wash over me`,`Felt all my fears just wane away`,`Unspoken kindness brought me here`,`And offered me a chance to stay`,`Took a train out of the city`,`Followed the wind to the waves`,`Thought the calm would keep me sane`,`But my thoughts were still at play`,`Wandered around hoping I would find a way`,`But who am I to try and escape`,`Hope you don't blame the choice I made`,`Because I never said that I deserved to stay`]},
-        {title:`nightmare`, verseLength: 2, lines:[`nightmares haunting through my head`,`keeping me up at night, busy in bed`,`the dreams don't run through me`,`they always seem to miss my bed`,`the nights go by in total silence`,`not even sure of their existence`,`from dusk till dawn the days go by`,`missing every movement I lie`,`only nightmares seem to find me`,`haunting me until I die`,`but I'd choose them over dreams any day`,`for the nightmares don't deceive my head`,`and who wants to live in a world full of lies and deceit`,`when reality can be oh so bittersweet?`]},
-        {title:`fantasy`, verseLength: 2, lines:[`when he softly dreams`,`his mind takes him places`,`sweet fantasies to explore`,`with symphonies to keep him company`,`he tries to believe`,`in those fairytales he needs`,`but something speaks to him`,`of lies and deceit`,`is it real what he sees`,`or just a fantasy of the heart?`]},
-        {title:`caged heart`, verseLength: 2, lines:[`I can't deny what I feel`,`even though it shouldn't be real`,`I had put the pain in a cage`,`thrown away the key`,`it may seem easy`,`but it takes a lot to keep myself sane`,`as I'm feeling kind of queasy`,`and all I can remember is the pain`,`but now the cage has been unlocked`,`and the feelings are coming out like a flood`,`it's too late now to put them back behind bars`,`as there has been a revival of this caged heart`]},
-        {title:`haunting little demons`, verseLength: 4, lines:[`did I need to wait`,`for you to decide if you were ready`,`like a mere object`,`begging for attention`,`still wonder what you meant`,`in all those midnight texts`,`they felt like little clues`,`a puzzle inside my bed`,`that chaotic state of mind`,`left me incapacitated`,`while my hopes and dreams`,`were ever so infatuated`,`your indecisive signs`,`gave me so many frustrations`,`while my indecisive mind`,`let me go to far worse places`,`a simple figment of my imagination`,`taken further while I ws sleeping`,`Won't you just leave me here`,`with these haunting little demons?`]}
+        {title:`celeste`, verseLength: 2, audioPath: `poem-celeste.mp3`,lines:[`vibrant as the sun`,`her smile could make me blush`,`she draws me in`,`with every ray of light`,`closely warming me`,`a distance that she crossed`,`it's a feeling that I get`,`waiting for our hearts to align`,`as I'm the crescent moon`,`reflecting everything she gives`,`every night I feel awakened`,`dream of just a lingering touch`,`cursed be our lips`,`for they will never touch`,`intertwined forever`,`yet forever to be apart`]},
+        {title:`to stay`, verseLength: 2, audioPath: `poem-tostay.mp3`, lines:[`Took a train out of the city`,`Followed the wind to the waves`,`Bathed in the sunlight by the window`,`In a temporary home I made`,`Let the calm wash over me`,`Felt all my fears just wane away`,`Unspoken kindness brought me here`,`And offered me a chance to stay`,`Took a train out of the city`,`Followed the wind to the waves`,`Thought the calm would keep me sane`,`But my thoughts were still at play`,`Wandered around hoping I would find a way`,`But who am I to try and escape`,`Hope you don't blame the choice I made`,`Because I never said that I deserved to stay`]},
+        {title:`nightmare`, verseLength: 2, audioPath: `poem-nightmare.mp3`, lines:[`nightmares haunting through my head`,`keeping me up at night, busy in bed`,`the dreams don't run through me`,`they always seem to miss my bed`,`the nights go by in total silence`,`not even sure of their existence`,`from dusk till dawn the days go by`,`missing every movement I lie`,`only nightmares seem to find me`,`haunting me until I die`,`but I'd choose them over dreams any day`,`for the nightmares don't deceive my head`,`and who wants to live in a world full of lies and deceit`,`when reality can be oh so bittersweet?`]},
+        {title:`fantasy`, verseLength: 2, audioPath: `poem-fantasy.mp3`, lines:[`when he softly dreams`,`his mind takes him places`,`sweet fantasies to explore`,`with symphonies to keep him company`,`he tries to believe`,`in those fairytales he needs`,`but something speaks to him`,`of lies and deceit`,`is it real what he sees`,`or merely just a fantasy?`]},
+        {title:`caged heart`, verseLength: 2, audioPath: `poem-cagedheart.mp3`, lines:[`I can't deny what I feel`,`even though it shouldn't be real`,`I had put the pain in a cage`,`thrown away the key`,`it may seem easy`,`but it takes a lot to keep myself sane`,`as I'm feeling kind of queasy`,`and all I can remember is the pain`,`but now the cage has been unlocked`,`and the feelings are coming out like a flood`,`it's too late now to put them back behind bars`,`as there has been a revival of this caged heart`]},
+        {title:`haunting little demons`, verseLength: 4, audioPath: `poem-hauntinglittledemons.mp3`, lines:[`did I need to wait`,`for you to decide if you were ready`,`like a mere object`,`begging for attention`,`still wonder what you meant`,`in all those midnight texts`,`they felt like little clues`,`a puzzle inside my bed`,`that chaotic state of mind`,`left me incapacitated`,`while my hopes and dreams`,`were ever so infatuated`,`your indecisive signs`,`gave me so many frustrations`,`while my indecisive mind`,`let me go to far worse places`,`a simple figment of my imagination`,`taken further while I ws sleeping`,`Won't you just leave me here`,`with these haunting little demons?`]}
     ]
     
     //defining some global variables for our project
     let poseNet, video;
+    const $poemContainer = document.querySelector(`.poem`);
+    let poemAudio = new Audio();
     let scene, camera, renderer, controls, fontWispy, fontPoppinsReg, lampFile, statueFile, cameraAngle, cameraRadius;
     let statues = [];
 
@@ -344,6 +342,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         //start playing the audio
         const audio = document.querySelector(`.audio`);
         audio.volume = 0.4;
+        audio.loop = true;
         audio.play();
 
         //animate menu with gsap
@@ -357,12 +356,6 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
             //animate the camera controls of scene to move upwards.
             gsap.to(controls.target, { x:0,y:30,z:0, duration: 5, ease: "power1.inOut"});
         }, 3000);
-
-        //start the speech recognition after 8 seconds (so after the camera movement animation is over)
-        // setTimeout( function() {
-        //     //start up the speech recognition
-        //     launchSpeechRecognition();
-        // }, 8000);
 
         //launch the speech recognition
         launchSpeechRecognition();
@@ -410,7 +403,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
 
             //temporary fix
-            // focusStatue(3);
+            //focusStatue(1);
             // setTimeout(function(){
             //     returnToCenter();
 
@@ -481,24 +474,51 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
         // if ('speechSynthesis' in window) {
         //     console.log(`speech synthesis supported!`);
-        //     const speechSynth = window.speechSynthesis;
-        //     console.log(speechSynth);
+        //     const synthesis = window.speechSynthesis;
             
-        //     function populateVoiceList(){
-        //         speechSynth.getVoices(); // now should have an array of all voices
-        //     }
+        //     const msg = new SpeechSynthesisUtterance(`Took a train out of the city,
+        //     followed the wind to the waves.
+        //     Bathed in the sunlight by the window,
+        //     in a temporary home I made.
+        //     Let the calm wash over me,
+        //     felt all my fears just wane away.
+        //     Unspoken kindness brought me here,
+        //     and offered me a chance to stay.`);
 
-        //     if(speechSynth.onvoiceschanged !== undefined){
-        //         speechSynth.onvoiceschanged = () => populateVoiceList();
-        //     }
-
-        //     let voices = speechSynth.getVoices();
-        //     console.log(voices);
+        //     //msg.text = "took a train out of the city.";
+        //     //msg.rate= 0.3;
+        //     // msg.rate= 0.8;
+        //     // msg.pitch = 0.4;
+        //     // speechSynth.speak(msg);
 
             
-        //     const msg = new SpeechSynthesisUtterance();
-        //     msg.text = "Welcome, to Memoria.";
-        //     window.speechSynthesis.speak(msg);
+
+        //     window.speechSynthesis.onvoiceschanged = function() {
+                
+        //         //source for the regex code: https://stackoverflow.com/questions/21513706/getting-the-list-of-voices-in-speechsynthesis-web-speech-api
+        //         // Regex to match all English language tags e.g en, en-US, en-GB
+        //         const langRegex = /^en(-[a-z]{2})?$/i;
+
+        //         // Get the available voices and filter the list to only have English speakers
+        //         const voices = synthesis.getVoices().filter((voice) => langRegex.test(voice.lang));
+
+        //         // Log the properties of the voices in the list
+        //         voices.forEach(voice => {
+        //             console.log({
+        //             name: voice.name,
+        //             lang: voice.lang,
+        //             uri: voice.voiceURI,
+        //             local: voice.localService,
+        //             default: voice.default,
+        //             });
+        //         });
+
+        //         msg.voice = voices[1];
+        //         msg.pitch = 1;
+        //         msg.rate = 0.8;
+        //         msg.volume = 0.4;
+        //         synthesis.speak(msg);
+        //     };
         // }else{
         //      console.log("Sorry, your browser doesn't support text to speech!");
         // }
@@ -516,6 +536,20 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         gsap.to(controls.target, {x:positionX, y:45, z:positionZ, duration: 4, ease: "power1.inOut"});
         gsap.to(camera.position, {x:positionX*0.9, y:45, z:positionZ*0.9, duration: 4, ease: "power1.inOut"});
 
+        //do a check to empty the poem container entirely, if the user switched directly from one poem to another
+        if($poemContainer.innerHTML != 0) {
+            gsap.to($poemContainer,{opacity: 0, duration: 2});
+            setTimeout(function(){
+                $poemContainer.innerHTML = ``;
+            }, 2000);
+        }
+
+        //stop the poemAudio if already playing
+        if (poemAudio.duration > 0 && !poemAudio.paused) {
+            //Its playing...do your job
+            poemAudio.pause();
+        } 
+
         //render the poem that matches with the current statue/voiceInput, after gsap camera move
         setTimeout(function(){
             renderPoem(voiceInput);
@@ -531,7 +565,6 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         const currentPoem = poems[voiceInput];
 
         //show the poem class, and render the poem line per line animation
-        const $poemContainer = document.querySelector(`.poem`);
         $poemContainer.style.display=`block`;
         $poemContainer.style.opacity=1;
 
@@ -542,20 +575,20 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         $poemContainer.appendChild(poemTitle);
         gsap.to(poemTitle, {opacity: 1, duration: 2, ease: "power1.inOut"});
 
-        renderPoemLines(currentPoem, $poemContainer);
-
         //start the audio to read poem aloud
+        poemAudio.src = `./assets/poems/${currentPoem.audioPath}`;
+        poemAudio.play();
 
+        renderPoemLines(currentPoem, $poemContainer);
 
         //make the lines of the poem appear one by one
         for(let i=0; i < currentPoem.lines.length; i++) {
             //select the poem and execute gsap function on it
             const $currentLine = $poemContainer.querySelector(`.poem__line--${i}`);
-            console.log($currentLine);
             
             setTimeout(function(){
-                gsap.to($currentLine, {maxWidth: `100%`, duration: 2, ease: "power1.inOut"});
-            }, (2000*i));
+                gsap.to($currentLine, {maxWidth: `100%`, duration: 3.5, ease: "power1.inOut"});
+            }, (3500*i));
         }
     }
 
@@ -580,6 +613,13 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         //hide the poem again and set its contents empty again for next poem
         const $poemContainer = document.querySelector(`.poem`);
         gsap.to($poemContainer, {opacity:0, duration: 2});
+
+        //stop the poemAudio if playing
+        if (poemAudio.duration > 0 && !poemAudio.paused) {
+            //Its playing...do your job
+            poemAudio.pause();
+        }
+
         setTimeout(function(){
             $poemContainer.style.display = `none`;
             $poemContainer.innerHTML = ``;
