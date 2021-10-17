@@ -577,35 +577,34 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
         //start the audio to read poem aloud
         poemAudio.src = `./assets/poems/${currentPoem.audioPath}`;
-        poemAudio.play();
-
-        renderPoemLines(currentPoem, $poemContainer);
-
-        //make the lines of the poem appear one by one
-        for(let i=0; i < currentPoem.lines.length; i++) {
-            //select the poem and execute gsap function on it
-            const $currentLine = $poemContainer.querySelector(`.poem__line--${i}`);
-            
-            setTimeout(function(){
-                gsap.to($currentLine, {maxWidth: `100%`, duration: 3.5, ease: "power1.inOut"});
-            }, (3500*i));
+        poemAudio.load();
+        poemAudio.onloadeddata = function(){
+            console.log(`loaded the audio`);
+            poemAudio.play(); 
+           
+            renderPoemLines(currentPoem, $poemContainer);
+            //make the lines of the poem appear one by one
+            for(let i=0; i < currentPoem.lines.length; i++) {
+                //select the poem and execute gsap function on it
+                const $currentLine = $poemContainer.querySelector(`.poem__line--${i}`);
+                
+                setTimeout(function(){
+                    gsap.to($currentLine, {maxWidth: `100%`, duration: 3.5, ease: "power1.inOut"});
+                }, (3500*i));
+            }
         }
     }
 
     const renderPoemLines = (currentPoem, poemContainer) => {
         for(let i=0; i < currentPoem.lines.length; i++){
-            console.log(currentPoem.lines[i]);
             const newLine = document.createElement(`p`);
-
             newLine.classList.add(`poem__line`);
             newLine.classList.add(`poem__line--${i}`);
             if((i+1) % currentPoem.verseLength == 0) {
                 newLine.classList.add(`poem__line--verse`);
             }
-
             newLine.textContent = currentPoem.lines[i];
             poemContainer.appendChild(newLine);
-            // gsap.to(newLine, {maxWidth: `100%`, duration: 2});
         }
     }
 
@@ -689,11 +688,6 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         // })
 
         //using p5 and ml5 to get nose position and use it as a cursor
-
-
-
-
-
 
 
 
