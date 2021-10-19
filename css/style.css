@@ -8,6 +8,8 @@
 
   display:grid;
   grid-template: 1fr / 1fr;
+
+  overflow-y: hidden;
 }
 
 canvas { 
@@ -112,10 +114,10 @@ canvas {
 
 .subtitle{
   text-transform: uppercase;
-  font-family: poppins;
+  font-family: Poppins, sans-serif;
   letter-spacing: 0.2rem;
   font-size: 2rem;
-  font-weight: 400;
+  font-weight: 300;
 
   position: relative;
 }
@@ -178,7 +180,7 @@ canvas {
   grid-column:1;
   padding-left: 10vw;
   align-self: center;
-  z-index: 100;
+  z-index: 9;
 
   color:white;
   display: none;
@@ -196,7 +198,7 @@ canvas {
 }
 
 .poem__line{
-  font-family: Poppins;
+  font-family: Poppins, sans-serif;
   font-size: 1.3rem;
   font-weight: 300;
   line-height: 1.2;
@@ -211,8 +213,37 @@ canvas {
   margin-bottom: 0.5rem;
 }
 
+.poem__return{
+  opacity: 0;
+  margin-top: 2rem;
+
+  font-family: Wispy;
+  font-size: 1.2rem;
+}
+
 /* styling for the audio */
 .audio{
   grid-row:1;
   grid-column: 1;
+}
+
+/* styling for voicefail */
+.voicefail{
+  grid-row: 1;
+  grid-column: 1;
+  display: flex;
+  align-items: flex-end ;
+  justify-content: center;
+
+  opacity: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9;
+}
+
+.voicefail__message{
+  color: white;
+  font-family: Poppins, sans-serif;
+  font-size: 1.4rem;
+  margin-bottom: 10vh;
 }

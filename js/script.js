@@ -11,30 +11,20 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 // import { UnrealBloomPass } from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/postprocessing/UnrealBloomPass.js';
 {
     //NEXT STEPS:
-    //3. incorporate motion detection of face to move around using ML5
-    //5. When saying a statue name aloud, zoom in on that statue and make a poem appear next to it
-        //1. Move in on statue number 4 automatically OK
-        //2. Incorporate voice input OK
-        //3. Render poem next to the statue line per line OK
-        //4. Implement that when user says 'return', camera returns to center position of welcome to memoria
-        //5. let background audio play
-    //7. incorporate drawing onto sculpture, so our user can draw using ML5.
+    //3. incorporate motion detection of face to move around using ml5 OK
+    //7. incorporate drawing onto sculpture, so our user can turn on neon light.
         //1. add small 'unlit' neon signs such as a moon, a heart, a tear...
         //2. when the user zooms in on statue, activate a checker that checks whether the cursor moves over the coordinates of this neon light
         //3. if coordinates match, turn on that part of the statue.
     //END: add a loader screen that displays until scene is fully loaded
-
-    // try incorporating a voice to read our intro aloud
-    //add 
 
     //add a loading image at the beginning to ensure that everything is loaded before experience starts
 
     //IMPROVEMENTS TO MAKE
     //2. improve fog in the experience
     //3. Background color into gradient to darker shade. Maybe try out small stars
-    //4. look into throttling for the cursor eventlistener
-    //5. add a check to see if the user has getUserMedia available, if not, we let our user navigate the experience with arrows or the hover effect left and right
     //6. add hover link to the enter button OK
+    //7. Add easing to the camera rotation
     
     //defining our poems in array
     const poems = [
@@ -47,7 +37,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
     ]
     
     //defining some global variables for our project
-    let poseNet, video;
+    let poseNet, video, previousNoseX;
     const $poemContainer = document.querySelector(`.poem`);
     let poemAudio = new Audio();
     let scene, camera, renderer, controls, fontWispy, fontPoppinsReg, lampFile, statueFile, cameraAngle, cameraRadius;
@@ -173,7 +163,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
         //defining our pointlight sphere once, to then clone it in our loop. This improves performance
         //add a light source to our scene
-        const light = new THREE.PointLight(`#ffffff`, 0.5);
+        const light = new THREE.PointLight(`#ffffff`, 0.7);
         //adding a sphere to show the location of the light
         const sphere = new THREE.SphereGeometry(3,16,8);
         light.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xffffff } ) ) );
@@ -286,9 +276,9 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
             //define the radius
             if(i % 2 === 0) {
-                statuesRadius = 180;
+                statuesRadius = 165;
             } else if(i % 3 === 0) {
-                statuesRadius = 210;
+                statuesRadius = 180;
             } else {
                 statuesRadius = 150;
             }
@@ -359,6 +349,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
         //launch the speech recognition
         launchSpeechRecognition();
+        launchNoseRecognition();
     }
 
     const handleMousemoveWindow = e => {
@@ -465,6 +456,11 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
                         console.log(`input was return, start return to center function`);
                         returnToCenter();
                         break;
+                    default:
+                        //no result matched / found
+                        console.log(`input did not match a wanted result.`);
+                        voiceNoResult();
+                        break;
                 }
             }
           
@@ -524,8 +520,18 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         // }
     }
     
+    const voiceNoResult = () => {
+        const $voiceFailContainer = document.querySelector(`.voicefail`);
+        gsap.to($voiceFailContainer, {opacity: 1, duration: 1});
+        setTimeout(function() {
+            gsap.to($voiceFailContainer, {opacity: 0, duration: 1});
+        }, 2500);
+    }
 
     const focusStatue = (voiceInput) => {
+        //turn off poseNet
+        poseNet.removeListener(`pose`, handlePoseResults);
+
         //get the coordinates of the statue
         const positionX = statues[voiceInput].position.x;
         const positionZ = statues[voiceInput].position.z;
@@ -583,6 +589,13 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
             poemAudio.play(); 
            
             renderPoemLines(currentPoem, $poemContainer);
+
+            //show line that tells user how to return
+            const $returnLine = document.createElement(`p`);
+            $returnLine.classList.add(`poem__return`);
+            $returnLine.textContent = `to leave this memory, press space and say return`;
+            $poemContainer.appendChild($returnLine);
+
             //make the lines of the poem appear one by one
             for(let i=0; i < currentPoem.lines.length; i++) {
                 //select the poem and execute gsap function on it
@@ -592,6 +605,9 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
                     gsap.to($currentLine, {maxWidth: `100%`, duration: 3.5, ease: "power1.inOut"});
                 }, (3500*i));
             }
+
+            //make the return appear
+            gsap.to($returnLine, {opacity: 1, duration:1});
         }
     }
 
@@ -615,18 +631,24 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
         //stop the poemAudio if playing
         if (poemAudio.duration > 0 && !poemAudio.paused) {
-            //Its playing...do your job
             poemAudio.pause();
         }
 
         setTimeout(function(){
             $poemContainer.style.display = `none`;
             $poemContainer.innerHTML = ``;
-            
+
+            //calculate the current camera positions for center
+            const positionX = cameraRadius * Math.cos(cameraAngle);  
+            const positionZ = cameraRadius * Math.sin(cameraAngle);
+
             //change target of the camera to the center, and position of camera to be in front of center
             gsap.to(controls.target, {x:0, y:30, z:0, duration: 4, ease: "power1.inOut"});
-            gsap.to(camera.position, {x:0, y:30, z:10, duration: 4, ease: "power1.inOut"});
+            gsap.to(camera.position, {x: positionX, y:30, z:positionZ, duration: 4, ease: "power1.inOut"});
         },2000);
+
+        //turn on posenet again
+        poseNet.on(`pose`, handlePoseResults);
     }
 
 
@@ -646,6 +668,89 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         
     }
 
+    const launchNoseRecognition = async () => {
+        //Defining the detection options
+        const detectionOptions = {
+            withLandmarks: true,
+            withDescriptors: false,
+            minConfidence:0.5,
+        };
+
+        //create a video element in the document
+        const videoElement = document.createElement(`video`);
+        videoElement.setAttribute(`style`,`display:none`);
+        videoElement.width = window.innerWidth;
+        videoElement.height = window.innerHeight;
+        document.body.appendChild(videoElement);
+
+        //get the webcam input and set it as video sourceobject
+        const constraints = {
+            video: true,
+        };
+        const videoInput = await navigator.mediaDevices.getUserMedia(constraints);
+        videoElement.srcObject = videoInput;
+        videoElement.play();
+
+        //faceapi = ml5.faceApi(videoElement, detectionOptions, modelLoaded);
+        poseNet = ml5.poseNet(videoElement, modelLoaded);
+        // poseNet.on(`pose`, (results) => {
+        //     if(results.length > 0){
+        //         //console.log(results[0].pose.nose);
+        //         const currentNoseX = results[0].pose.nose.x;
+        //         //check whether the nose is moving left or right
+        //         if(previousNoseX) {
+        //             // //compare previous to current to see whether face is moving left or right
+        //             // if(previousNoseX < currentNoseX){
+        //             //     console.log(`moving left`);
+        //             //     // move left
+        //             //     camera.position.x = cameraRadius * Math.cos( cameraAngle );  
+        //             //     camera.position.z = cameraRadius * Math.sin( cameraAngle );
+        //             //     cameraAngle -= 0.0001;
+        //             // } else {
+        //             //     console.log(`moving right`);
+        //             //     // move right
+        //             //     camera.position.x = cameraRadius * Math.cos( cameraAngle );  
+        //             //     camera.position.z = cameraRadius * Math.sin( cameraAngle );
+        //             //     cameraAngle += 0.0001;
+        //             // }
+
+        //             if(currentNoseX < window.innerWidth / 2) {
+        //                 camera.position.x = cameraRadius * Math.cos( cameraAngle );  
+        //                 camera.position.z = cameraRadius * Math.sin( cameraAngle );
+        //                 cameraAngle -= 0.002;
+        //             } else {
+        //                 camera.position.x = cameraRadius * Math.cos( cameraAngle );  
+        //                 camera.position.z = cameraRadius * Math.sin( cameraAngle );
+        //                 cameraAngle += 0.002;
+        //             }
+        //             // previousNoseX = currentNoseX;
+        //         } else {
+        //             //set the previousnose value first time
+        //             // previousNoseX = results[0].pose.nose.x;
+        //         }
+        //     }
+            
+        // });
+        poseNet.on(`pose`, handlePoseResults);
+    }
+
+    const handlePoseResults = (results) => {
+        if(results.length > 0){
+                //console.log(results[0].pose.nose);
+                const currentNoseX = results[0].pose.nose.x;
+                //check whether the nose is moving left or right
+                if(currentNoseX < window.innerWidth * 0.4) {
+                    camera.position.x = cameraRadius * Math.cos(cameraAngle);  
+                    camera.position.z = cameraRadius * Math.sin(cameraAngle);
+                    cameraAngle += 0.01;
+                } else if(currentNoseX > window.innerWidth * 0.6){
+                    camera.position.x = cameraRadius * Math.cos(cameraAngle);  
+                    camera.position.z = cameraRadius * Math.sin(cameraAngle);
+                    cameraAngle -= 0.01;
+                }
+            }
+    }
+
     const init = async () => {
         function hasGetUserMedia() {
             return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
@@ -658,38 +763,6 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         }
 
         hasGetUserMedia();
-
-        //Defining the detection options
-        // const detectionOptions = {
-        //     withLandmarks: true,
-        //     withDescriptors: false,
-        //     minConfidence:0.5,
-        // };
-
-        //create a video element in the document
-        // const videoElement = document.createElement(`video`);
-        // videoElement.setAttribute(`style`,`display:none`);
-        // videoElement.width = window.innerWidth;
-        // videoElement.height = window.innerHeight;
-        // document.body.appendChild(videoElement);
-
-        // //get the webcam input and set it as video sourceobject
-        // const constraints = {
-        //     video: true,
-        // };
-        // const videoInput = await navigator.mediaDevices.getUserMedia(constraints);
-        // videoElement.srcObject = videoInput;
-        // videoElement.play();
-
-        // //faceapi = ml5.faceApi(videoElement, detectionOptions, modelLoaded);
-        // poseNet = ml5.poseNet(videoElement, modelLoaded);
-        // poseNet.on(`pose`, (results) => {
-        //     console.log(results);
-        // })
-
-        //using p5 and ml5 to get nose position and use it as a cursor
-
-
 
         //load fonts
         await loadFonts();
@@ -711,7 +784,8 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         //starting our angle at 1.57 (or PI/2);
         cameraAngle = Math.PI/2;
         cameraRadius = 10; 
-        window.addEventListener('mousemove', handleMousemoveWindow);
+        
+        //window.addEventListener('mousemove', handleMousemoveWindow);
     }
 
     init();
