@@ -11,11 +11,11 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 // import { UnrealBloomPass } from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/postprocessing/UnrealBloomPass.js';
 {
     //NEXT STEPS:
-    //3. incorporate motion detection of face to move around using ml5 OK
     //7. incorporate drawing onto sculpture, so our user can turn on neon light.
         //1. add small 'unlit' neon signs such as a moon, a heart, a tear...
         //2. when the user zooms in on statue, activate a checker that checks whether the cursor moves over the coordinates of this neon light
         //3. if coordinates match, turn on that part of the statue.
+        
     //END: add a loader screen that displays until scene is fully loaded
 
     //add a loading image at the beginning to ensure that everything is loaded before experience starts
@@ -30,10 +30,10 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
     const poems = [
         {title:`celeste`, verseLength: 2, audioPath: `poem-celeste.mp3`,lines:[`vibrant as the sun`,`her smile could make me blush`,`she draws me in`,`with every ray of light`,`closely warming me`,`a distance that she crossed`,`it's a feeling that I get`,`waiting for our hearts to align`,`as I'm the crescent moon`,`reflecting everything she gives`,`every night I feel awakened`,`dream of just a lingering touch`,`cursed be our lips`,`for they will never touch`,`intertwined forever`,`yet forever to be apart`]},
         {title:`to stay`, verseLength: 2, audioPath: `poem-tostay.mp3`, lines:[`Took a train out of the city`,`Followed the wind to the waves`,`Bathed in the sunlight by the window`,`In a temporary home I made`,`Let the calm wash over me`,`Felt all my fears just wane away`,`Unspoken kindness brought me here`,`And offered me a chance to stay`,`Took a train out of the city`,`Followed the wind to the waves`,`Thought the calm would keep me sane`,`But my thoughts were still at play`,`Wandered around hoping I would find a way`,`But who am I to try and escape`,`Hope you don't blame the choice I made`,`Because I never said that I deserved to stay`]},
-        {title:`nightmare`, verseLength: 2, audioPath: `poem-nightmare.mp3`, lines:[`nightmares haunting through my head`,`keeping me up at night, busy in bed`,`the dreams don't run through me`,`they always seem to miss my bed`,`the nights go by in total silence`,`not even sure of their existence`,`from dusk till dawn the days go by`,`missing every movement I lie`,`only nightmares seem to find me`,`haunting me until I die`,`but I'd choose them over dreams any day`,`for the nightmares don't deceive my head`,`and who wants to live in a world full of lies and deceit`,`when reality can be oh so bittersweet?`]},
+        {title:`nightmare`, verseLength: 2, audioPath: `poem-nightmare.mp3`, lines:[`nightmares haunting through my head`,`keeping me up at night, busy in bed`,`the dreams don't run through me`,`they always seem to miss my bed`,`the nights go by in total silence`,`not even sure of their existence`,`from dusk till dawn the days go by`,`missing every movement I lie`,`only nightmares seem to find me`,`haunting me until I die`,`but I'd choose them over dreams any day`,`for the nightmares don't deceive my head`,`and who wants to live in a world full of lies and deceit`,`when reality could be oh so bittersweet?`]},
         {title:`fantasy`, verseLength: 2, audioPath: `poem-fantasy.mp3`, lines:[`when he softly dreams`,`his mind takes him places`,`sweet fantasies to explore`,`with symphonies to keep him company`,`he tries to believe`,`in those fairytales he needs`,`but something speaks to him`,`of lies and deceit`,`is it real what he sees`,`or merely just a fantasy?`]},
         {title:`caged heart`, verseLength: 2, audioPath: `poem-cagedheart.mp3`, lines:[`I can't deny what I feel`,`even though it shouldn't be real`,`I had put the pain in a cage`,`thrown away the key`,`it may seem easy`,`but it takes a lot to keep myself sane`,`as I'm feeling kind of queasy`,`and all I can remember is the pain`,`but now the cage has been unlocked`,`and the feelings are coming out like a flood`,`it's too late now to put them back behind bars`,`as there has been a revival of this caged heart`]},
-        {title:`haunting little demons`, verseLength: 4, audioPath: `poem-hauntinglittledemons.mp3`, lines:[`did I need to wait`,`for you to decide if you were ready`,`like a mere object`,`begging for attention`,`still wonder what you meant`,`in all those midnight texts`,`they felt like little clues`,`a puzzle inside my bed`,`that chaotic state of mind`,`left me incapacitated`,`while my hopes and dreams`,`were ever so infatuated`,`your indecisive signs`,`gave me so many frustrations`,`while my indecisive mind`,`let me go to far worse places`,`a simple figment of my imagination`,`taken further while I ws sleeping`,`Won't you just leave me here`,`with these haunting little demons?`]}
+        {title:`haunting little demons`, verseLength: 4, audioPath: `poem-hauntinglittledemons.mp3`, lines:[`did I need to wait`,`for you to decide if you were ready`,`like a mere object`,`begging for attention`,`still wonder what you meant`,`in all those midnight texts`,`they felt like little clues`,`a puzzle inside my bed`,`that chaotic state of mind`,`left me incapacitated`,`while my hopes and dreams`,`were ever so infatuated`,`your indecisive signs`,`gave me so many frustrations`,`while my indecisive mind`,`let me go to far worse places`,`a simple figment of my imagination`,`taken further while I was sleeping`,`Won't you just leave me here`,`with these haunting little demons?`]}
     ]
     
     //defining some global variables for our project
@@ -176,9 +176,9 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
             if(i % 3/2 === 0) {
                 lightsRadius = 150;
             } else if(i % 5/2 === 0) {
-                lightsRadius = 180;
+                lightsRadius = 170;
             } else {
-                lightsRadius = 210;
+                lightsRadius = 190;
             }
 
             const newLight = light.clone(true);
@@ -273,14 +273,13 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
         for(let i = -1; i < statuesAmount-1; i++) {
             const statueMesh = statueFile.clone(true);
-
             //define the radius
             if(i % 2 === 0) {
-                statuesRadius = 165;
+                statuesRadius = 145;
             } else if(i % 3 === 0) {
-                statuesRadius = 180;
+                statuesRadius = 160;
             } else {
-                statuesRadius = 150;
+                statuesRadius = 130;
             }
 
             //calculate the coordinates so the lights are placed evenly along circular path, the Y is a randomized value to place the bulbs at different heights
@@ -331,7 +330,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
         //start playing the audio
         const audio = document.querySelector(`.audio`);
-        audio.volume = 0.4;
+        audio.volume = 0.2;
         audio.loop = true;
         audio.play();
 
