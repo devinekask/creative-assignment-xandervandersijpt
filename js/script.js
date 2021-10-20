@@ -15,8 +15,9 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         //1. add small 'unlit' neon signs such as a moon, a heart, a tear...
         //2. when the user zooms in on statue, activate a checker that checks whether the cursor moves over the coordinates of this neon light
         //3. if coordinates match, turn on that part of the statue.
-        
-    //END: add a loader screen that displays until scene is fully loaded
+    //8. set first poem text to right
+
+    //9. Add 3 quotes in the sky of the scene
 
     //add a loading image at the beginning to ensure that everything is loaded before experience starts
 
@@ -37,7 +38,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
     ]
     
     //defining some global variables for our project
-    let poseNet, video, previousNoseX;
+    let poseNet, speechRecognition;
     const $poemContainer = document.querySelector(`.poem`);
     let poemAudio = new Audio();
     let scene, camera, renderer, controls, fontWispy, fontPoppinsReg, lampFile, statueFile, cameraAngle, cameraRadius;
@@ -89,8 +90,12 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         scene = new THREE.Scene();
 
         //perspective camera: Field of view, aspect ratio, near and far clipping plane.
-        camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight,0.1, 1000);
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight,0.1, 1000);
         camera.position.set(0,30,10);
+
+        //starting our angle at 1.57 (or PI/2);
+        cameraAngle = Math.PI/2;
+        cameraRadius = 10; 
 
         renderer = new THREE.WebGLRenderer();
         //set size and background color of renderer
@@ -116,7 +121,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         //rendering the scene
         //set a fog and background color on our scene
         scene.background = new THREE.Color(`#151E39`);
-        scene.fog = new THREE.Fog( `#151E39`, 1, 450);
+        scene.fog = new THREE.Fog( `#151E39`, 1, 400);
         //adding a circular floor to our scene
         renderFloor();
         //render the hemispheric light to light up the whole scene
@@ -335,43 +340,49 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         audio.play();
 
         //animate menu with gsap
-        gsap.to(".circle", {duration: 3, scale:2, opacity: 0});
+        gsap.to(".circle", {duration: 3, scale:2, autoAlpha: 0});
         gsap.to(".circle", {duration: 1.5, rotation: `180deg`, ease: "power1.inOut"});
-        gsap.to(".menu__copy", {duration: 3, opacity: 0});
-        gsap.to(".fog", {duration: 3, opacity: 0});
-        const $menuWrapper = document.querySelector(`.menu-wrapper`);
+        gsap.to(".menu__copy", {duration: 3, autoAlpha: 0});
+        gsap.to(".fog", {duration: 3, autoAlpha: 0});
+        const $menu = document.querySelector(`.menu`);
         setTimeout( function() { 
-            $menuWrapper.style.display = `none`; 
+            $menu.style.display = `none`; 
             //animate the camera controls of scene to move upwards.
             gsap.to(controls.target, { x:0,y:30,z:0, duration: 5, ease: "power1.inOut"});
         }, 3000);
 
-        //launch the speech recognition
-        launchSpeechRecognition();
-        launchNoseRecognition();
+        //launch the speech recognition when pressing space and face detection
+        poseNet.on(`pose`, handlePoseResults);
+
+        document.addEventListener('keyup', e => {
+            if (e.code === 'Space') {
+            console.log('Space pressed, initialise speech recognition');
+            speechRecognition.start();
+            }
+        });
     }
 
-    const handleMousemoveWindow = e => {
-        //execute function to check if mouse is in left or right 15% of screen, then move canvas accordingly
-        if(e.clientX < (window.innerWidth *0.20)){
-            // move left
-            camera.position.x = cameraRadius * Math.cos( cameraAngle );  
-            camera.position.z = cameraRadius * Math.sin( cameraAngle );
-            cameraAngle -= 0.003;
-        } else if(e.clientX > (window.innerWidth - (window.innerWidth *0.20))) {
-            // move right
-            camera.position.x = cameraRadius * Math.cos( cameraAngle );  
-            camera.position.z = cameraRadius * Math.sin( cameraAngle );
-            cameraAngle += 0.003;
-        }
-    }
+    // const handleMousemoveWindow = e => {
+    //     //execute function to check if mouse is in left or right 15% of screen, then move canvas accordingly
+    //     if(e.clientX < (window.innerWidth *0.20)){
+    //         // move left
+    //         camera.position.x = cameraRadius * Math.cos( cameraAngle );  
+    //         camera.position.z = cameraRadius * Math.sin( cameraAngle );
+    //         cameraAngle -= 0.003;
+    //     } else if(e.clientX > (window.innerWidth - (window.innerWidth *0.20))) {
+    //         // move right
+    //         camera.position.x = cameraRadius * Math.cos( cameraAngle );  
+    //         camera.position.z = cameraRadius * Math.sin( cameraAngle );
+    //         cameraAngle += 0.003;
+    //     }
+    // }
 
     const launchSpeechRecognition = () => {
         if ("webkitSpeechRecognition" in window) {
             console.log(`speech recognition available`);
             
             //define new speechRecognition
-            let speechRecognition = new webkitSpeechRecognition();
+            speechRecognition = new webkitSpeechRecognition();
             speechRecognition.continuous = false;
             speechRecognition.interimResults = false;
             speechRecognition.lang = `en-US`;
@@ -383,15 +394,6 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
             speechRecognition.grammars = speechGrammarList;
             console.log(speechGrammarList[0].weight);
 
-            //start speech recognition when pressing the spacebar
-            document.addEventListener('keyup', e => {
-                if (e.code === 'Space') {
-                  console.log('Space pressed, initialise speech recognition');
-                  speechRecognition.start();
-                }
-            });
-
-
             //temporary fix
             //focusStatue(1);
             // setTimeout(function(){
@@ -400,12 +402,16 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
             // }, 10000);
 
             //define the callback functions, log that SR is listening, results etc.
+            const $voiceListenContainer = document.querySelector(`.voicelistening`);
+
             speechRecognition.onstart = () => {
                 console.log(`SR is listening`);
+                gsap.to($voiceListenContainer, {autoAlpha: 1, duration: 1});
             }
 
             speechRecognition.onend = () => {
                 console.log(`SR stopped listening`);
+                gsap.to($voiceListenContainer, {autoAlpha: 0, duration: 1});
             }
 
             speechRecognition.onerror = e => {
@@ -463,67 +469,14 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
                 }
             }
           
-          } else {
-            console.log(`Speech Recognition Not Available`);
-        }
-
-        // if ('speechSynthesis' in window) {
-        //     console.log(`speech synthesis supported!`);
-        //     const synthesis = window.speechSynthesis;
-            
-        //     const msg = new SpeechSynthesisUtterance(`Took a train out of the city,
-        //     followed the wind to the waves.
-        //     Bathed in the sunlight by the window,
-        //     in a temporary home I made.
-        //     Let the calm wash over me,
-        //     felt all my fears just wane away.
-        //     Unspoken kindness brought me here,
-        //     and offered me a chance to stay.`);
-
-        //     //msg.text = "took a train out of the city.";
-        //     //msg.rate= 0.3;
-        //     // msg.rate= 0.8;
-        //     // msg.pitch = 0.4;
-        //     // speechSynth.speak(msg);
-
-            
-
-        //     window.speechSynthesis.onvoiceschanged = function() {
-                
-        //         //source for the regex code: https://stackoverflow.com/questions/21513706/getting-the-list-of-voices-in-speechsynthesis-web-speech-api
-        //         // Regex to match all English language tags e.g en, en-US, en-GB
-        //         const langRegex = /^en(-[a-z]{2})?$/i;
-
-        //         // Get the available voices and filter the list to only have English speakers
-        //         const voices = synthesis.getVoices().filter((voice) => langRegex.test(voice.lang));
-
-        //         // Log the properties of the voices in the list
-        //         voices.forEach(voice => {
-        //             console.log({
-        //             name: voice.name,
-        //             lang: voice.lang,
-        //             uri: voice.voiceURI,
-        //             local: voice.localService,
-        //             default: voice.default,
-        //             });
-        //         });
-
-        //         msg.voice = voices[1];
-        //         msg.pitch = 1;
-        //         msg.rate = 0.8;
-        //         msg.volume = 0.4;
-        //         synthesis.speak(msg);
-        //     };
-        // }else{
-        //      console.log("Sorry, your browser doesn't support text to speech!");
-        // }
+          }
     }
     
     const voiceNoResult = () => {
         const $voiceFailContainer = document.querySelector(`.voicefail`);
-        gsap.to($voiceFailContainer, {opacity: 1, duration: 1});
+        gsap.to($voiceFailContainer, {autoAlpha: 1, duration: 1});
         setTimeout(function() {
-            gsap.to($voiceFailContainer, {opacity: 0, duration: 1});
+            gsap.to($voiceFailContainer, {autoAlpha: 0, duration: 1});
         }, 2500);
     }
 
@@ -543,7 +496,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
         //do a check to empty the poem container entirely, if the user switched directly from one poem to another
         if($poemContainer.innerHTML != 0) {
-            gsap.to($poemContainer,{opacity: 0, duration: 2});
+            gsap.to($poemContainer,{autoAlpha: 0, duration: 2});
             setTimeout(function(){
                 $poemContainer.innerHTML = ``;
             }, 2000);
@@ -571,14 +524,14 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
         //show the poem class, and render the poem line per line animation
         $poemContainer.style.display=`block`;
-        $poemContainer.style.opacity=1;
+        $poemContainer.style.opacity= 1;
 
         //create title, let appear using opacity styling and gsap
         const poemTitle = document.createElement(`p`);
         poemTitle.classList.add(`poem__title`);
         poemTitle.textContent = currentPoem.title;
         $poemContainer.appendChild(poemTitle);
-        gsap.to(poemTitle, {opacity: 1, duration: 2, ease: "power1.inOut"});
+        gsap.to(poemTitle, {autoAlpha: 1, duration: 2, ease: "power1.inOut"});
 
         //start the audio to read poem aloud
         poemAudio.src = `./assets/poems/${currentPoem.audioPath}`;
@@ -606,7 +559,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
             }
 
             //make the return appear
-            gsap.to($returnLine, {opacity: 1, duration:1});
+            gsap.to($returnLine, {autoAlpha: 1, duration:1});
         }
     }
 
@@ -626,7 +579,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
     const returnToCenter = () => {
         //hide the poem again and set its contents empty again for next poem
         const $poemContainer = document.querySelector(`.poem`);
-        gsap.to($poemContainer, {opacity:0, duration: 2});
+        gsap.to($poemContainer, {autoAlpha:0, duration: 2});
 
         //stop the poemAudio if playing
         if (poemAudio.duration > 0 && !poemAudio.paused) {
@@ -730,7 +683,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         //     }
             
         // });
-        poseNet.on(`pose`, handlePoseResults);
+        
     }
 
     const handlePoseResults = (results) => {
@@ -750,7 +703,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
             }
     }
 
-    const init = async () => {
+    const loadScene = async () => {
         function hasGetUserMedia() {
             return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
         }
@@ -760,30 +713,44 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         } else {
             console.log(`getUserMedia() is not supported by the browser.`);
         }
-
+        
         hasGetUserMedia();
-
+        
         //load fonts
         await loadFonts();
 
         //get the statue from our StatueLoader
         await loadStatue();
-
+        
         //setting up the scene
         sceneSetup();
-
-        //show the loading screen until screen is rendered, then show menu.
-
-
-        //show startup screen when scene is rendered.
-        const $enterLink = document.querySelector(`.link`);
-        $enterLink.addEventListener(`click`, handleClickEnter);
-        gsap.to(".menu__copy", {duration: 1.5, opacity: 1});
-
-        //starting our angle at 1.57 (or PI/2);
-        cameraAngle = Math.PI/2;
-        cameraRadius = 10; 
         
+        //setup nose detection
+        launchNoseRecognition();
+
+        //setup speech detection
+        launchSpeechRecognition();
+
+        setTimeout(function(){
+            //hide loading screen and show menu screen
+            const $menuLoad = document.querySelector(`.menu__loader`);
+            gsap.to($menuLoad, {autoAlpha: 0, duration: 1});
+
+            //add eventlistener for the enter link
+            const $enterLink = document.querySelector(`.link`);
+            $enterLink.addEventListener(`click`, handleClickEnter);
+
+            setTimeout(function(){
+                const $menuCopy = document.querySelector(`.menu__copy`);
+                gsap.to($menuCopy, {autoAlpha: 1, duration: 1});
+            }, 1000);
+        },6000);
+    }
+
+    const init = async () => {
+        //show the loading screen until screen is rendered, then show menu.
+        loadScene();
+
         //window.addEventListener('mousemove', handleMousemoveWindow);
     }
 
