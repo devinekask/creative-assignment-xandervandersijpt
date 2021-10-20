@@ -20,16 +20,11 @@ canvas {
   grid-column:1;
 }
 
-.menu-wrapper{
-  width: 100%;
-  height: 100%;
+.menu{
+  grid-row: 1;
+  grid-column: 1;
   z-index: 99;
 
-  grid-row: 1;
-  grid-column:1;
-}
-
-.menu{
   width: 100%;
   height: 100%;
 
@@ -109,7 +104,7 @@ canvas {
   font-size: 12rem;
   font-family: Wispy;
   /* add top margin to center the title */
-  margin-top: 18.5rem;
+  margin-top: 20rem;
 }
 
 .subtitle{
@@ -130,6 +125,7 @@ canvas {
   background-color: white;
   left: -8.5rem;
   top: 1rem;
+  border-radius: 50%;
 }
 
 .subtitle::after{
@@ -140,6 +136,7 @@ canvas {
   background-color: white;
   right: -8.5rem;
   top: 1rem;
+  border-radius: 50%;
 }
 
 .link{
@@ -149,7 +146,7 @@ canvas {
   text-decoration: none;
   color: white;
 
-  margin-top: 7.3rem;
+  margin-top: 6rem;
   position: relative;
 }
 
@@ -173,6 +170,31 @@ canvas {
   transform: scaleX(1);
 }
 
+.menu__loader{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  color: white;
+}
+
+.loader__title{
+  font-size: 8rem;
+  margin-top: 22rem;
+}
+
+.loader__subtitle{
+  margin-top: 0.2rem;
+
+  font-family: Poppins, sans-serif;
+  font-style: italic;
+  font-size: 1.2rem;
+  font-weight: 300;
+}
 
 /* styling for the poem class */
 .poem{
@@ -228,7 +250,7 @@ canvas {
 }
 
 /* styling for voicefail */
-.voicefail{
+.voice-container{
   grid-row: 1;
   grid-column: 1;
   display: flex;
@@ -241,7 +263,7 @@ canvas {
   z-index: 9;
 }
 
-.voicefail__message{
+.voice__message{
   color: white;
   font-family: Poppins, sans-serif;
   font-size: 1.4rem;
