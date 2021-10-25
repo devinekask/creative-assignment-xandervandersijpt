@@ -1,6 +1,6 @@
 @font-face {
   font-family: "Wispy";
-  src: url("../assets/BNWispy.otf");
+  src: url("../assets/fonts/BNWispy.otf");
 }
 
 .container{
@@ -102,7 +102,7 @@ canvas {
 
 .title{
   font-size: 12rem;
-  font-family: Wispy;
+  font-family: Wispy, serif;
   /* add top margin to center the title */
   margin-top: 20rem;
 }
@@ -213,7 +213,7 @@ canvas {
 }
 
 .poem__title{
-  font-family: Wispy;
+  font-family: Wispy, serif;
   font-size: 8rem;
   margin-bottom: 1.5rem;
   opacity: 0;
@@ -235,12 +235,14 @@ canvas {
   margin-bottom: 0.5rem;
 }
 
-.poem__return{
+.poem__message{
   opacity: 0;
-  margin-top: 2rem;
-
-  font-family: Wispy;
+  font-family: Wispy, serif;
   font-size: 1.2rem;
+}
+
+.poem__message--instruction{
+  margin-top: 2rem;
 }
 
 /* styling for the audio */
@@ -268,4 +270,64 @@ canvas {
   font-family: Poppins, sans-serif;
   font-size: 1.4rem;
   margin-bottom: 10vh;
+}
+
+/* cursor canvas */
+.cursor{
+  grid-row: 1;
+  grid-column: 1;
+  z-index: 999;
+  
+  visibility: hidden;
+}
+
+/* statue interactivity symbols */
+.statint{
+  grid-row: 1;
+  grid-column: 1;
+  z-index: 999;
+
+  opacity: 0;
+  visibility: hidden;
+  width: 50vw;
+  margin-left: 50vw;
+}
+
+.statint--left{
+  margin-left: 0;
+}
+
+.statint__group{
+  position:relative;
+}
+
+.group__dot{
+  width: 1rem;
+  height: auto;
+}
+
+.shape{
+  position: absolute;
+  height: auto;
+  overflow: overlay;
+}
+
+.path{
+  fill: none;
+}
+
+.animate-path{
+  fill: none;
+  stroke: #fff;
+  stroke-linecap: round;
+  stroke-width: 0.2rem;
+
+  animation: movePath 3s linear; 
+  animation-fill-mode: forwards;
+}
+
+@keyframes movePath {
+  100% {
+    stroke-dashoffset: 0;
+  }
 }

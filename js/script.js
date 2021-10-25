@@ -4,50 +4,30 @@ import {FontLoader} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/lo
 import {TTFLoader} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/loaders/TTFLoader.js';
 import {TextGeometry} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/geometries/TextGeometry.js';
 import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/controls/OrbitControls.js';
-// import {Text} from 'https://cdn.jsdelivr.net/npm/troika-three-text@0.43.0/dist/troika-three-text.umd.min.js';
-// import { EffectComposer } from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/postprocessing/EffectComposer.js';
-// import { RenderPass } from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/postprocessing/RenderPass.js';
-// import { ShaderPass } from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/postprocessing/ShaderPass.js';
-// import { UnrealBloomPass } from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm/postprocessing/UnrealBloomPass.js';
+
 {
-    //NEXT STEPS:
-    //7. incorporate drawing onto sculpture, so our user can turn on neon light.
-        //1. add small 'unlit' neon signs such as a moon, a heart, a tear...
-        //2. when the user zooms in on statue, activate a checker that checks whether the cursor moves over the coordinates of this neon light
-        //3. if coordinates match, turn on that part of the statue.
-    //8. set first poem text to right
-
-    //9. Add 3 quotes in the sky of the scene
-
-    //add a loading image at the beginning to ensure that everything is loaded before experience starts
-
-    //IMPROVEMENTS TO MAKE
-    //2. improve fog in the experience
-    //3. Background color into gradient to darker shade. Maybe try out small stars
-    //6. add hover link to the enter button OK
-    //7. Add easing to the camera rotation
-    
     //defining our poems in array
     const poems = [
-        {title:`celeste`, verseLength: 2, audioPath: `poem-celeste.mp3`,lines:[`vibrant as the sun`,`her smile could make me blush`,`she draws me in`,`with every ray of light`,`closely warming me`,`a distance that she crossed`,`it's a feeling that I get`,`waiting for our hearts to align`,`as I'm the crescent moon`,`reflecting everything she gives`,`every night I feel awakened`,`dream of just a lingering touch`,`cursed be our lips`,`for they will never touch`,`intertwined forever`,`yet forever to be apart`]},
-        {title:`to stay`, verseLength: 2, audioPath: `poem-tostay.mp3`, lines:[`Took a train out of the city`,`Followed the wind to the waves`,`Bathed in the sunlight by the window`,`In a temporary home I made`,`Let the calm wash over me`,`Felt all my fears just wane away`,`Unspoken kindness brought me here`,`And offered me a chance to stay`,`Took a train out of the city`,`Followed the wind to the waves`,`Thought the calm would keep me sane`,`But my thoughts were still at play`,`Wandered around hoping I would find a way`,`But who am I to try and escape`,`Hope you don't blame the choice I made`,`Because I never said that I deserved to stay`]},
-        {title:`nightmare`, verseLength: 2, audioPath: `poem-nightmare.mp3`, lines:[`nightmares haunting through my head`,`keeping me up at night, busy in bed`,`the dreams don't run through me`,`they always seem to miss my bed`,`the nights go by in total silence`,`not even sure of their existence`,`from dusk till dawn the days go by`,`missing every movement I lie`,`only nightmares seem to find me`,`haunting me until I die`,`but I'd choose them over dreams any day`,`for the nightmares don't deceive my head`,`and who wants to live in a world full of lies and deceit`,`when reality could be oh so bittersweet?`]},
-        {title:`fantasy`, verseLength: 2, audioPath: `poem-fantasy.mp3`, lines:[`when he softly dreams`,`his mind takes him places`,`sweet fantasies to explore`,`with symphonies to keep him company`,`he tries to believe`,`in those fairytales he needs`,`but something speaks to him`,`of lies and deceit`,`is it real what he sees`,`or merely just a fantasy?`]},
-        {title:`caged heart`, verseLength: 2, audioPath: `poem-cagedheart.mp3`, lines:[`I can't deny what I feel`,`even though it shouldn't be real`,`I had put the pain in a cage`,`thrown away the key`,`it may seem easy`,`but it takes a lot to keep myself sane`,`as I'm feeling kind of queasy`,`and all I can remember is the pain`,`but now the cage has been unlocked`,`and the feelings are coming out like a flood`,`it's too late now to put them back behind bars`,`as there has been a revival of this caged heart`]},
-        {title:`haunting little demons`, verseLength: 4, audioPath: `poem-hauntinglittledemons.mp3`, lines:[`did I need to wait`,`for you to decide if you were ready`,`like a mere object`,`begging for attention`,`still wonder what you meant`,`in all those midnight texts`,`they felt like little clues`,`a puzzle inside my bed`,`that chaotic state of mind`,`left me incapacitated`,`while my hopes and dreams`,`were ever so infatuated`,`your indecisive signs`,`gave me so many frustrations`,`while my indecisive mind`,`let me go to far worse places`,`a simple figment of my imagination`,`taken further while I was sleeping`,`Won't you just leave me here`,`with these haunting little demons?`]}
-    ]
+        {title:`celeste`, verseLength: 2, audioPath: `celeste`, interactionShapes: [{name:`star`, locationX: 30, locationY: 50, width: 12}, {name:`moon`, locationX: 60, locationY: 25, width: 25}], lines:[`Vibrant as the sun`,`her smile could make me blush`,`She draws me in`,`with every ray of light`,`Closely warming me`,`a distance that she crossed`,`It's a feeling that I get`,`waiting for our hearts to align`,`As I'm the crescent moon`,`reflecting everything she gives`,`Every night I feel awakened`,`dream of just a lingering touch`,`Cursed be our lips`,`for they will never touch`,`Intertwined forever`,`yet forever to be apart`]},
+        {title:`to stay`, verseLength: 2, audioPath: `tostay`, interactionShapes: [{name:`sun`, locationX: 65, locationY: 35, width: 15}, {name:`waves`, locationX: 25, locationY: 60, width: 30}], lines:[`Took a train out of the city`,`Followed the wind to the waves`,`Bathed in the sunlight by the window`,`In a temporary home I made`,`Let the calm wash over me`,`Felt all my fears just wane away`,`Unspoken kindness brought me here`,`And offered me a chance to stay`,`Took a train out of the city`,`Followed the wind to the waves`,`Thought the calm would keep me sane`,`But my thoughts were still at play`,`Wandered around hoping I would find a way`,`But who am I to try and escape`,`Hope you don't blame the choice I made`,`Because I never said that I deserved to stay`]},
+        {title:`nightmare`, verseLength: 2, audioPath: `nightmare`, interactionShapes: [{name:`face`, locationX: 50, locationY: 70, width: 15}, {name:`pillow`, locationX: 50, locationY: 5, width:35}], lines:[`Nightmares haunting through my head`,`keeping me up at night, busy in bed`,`The dreams don't run through me`,`they always seem to miss my bed`,`The nights go by in total silence`,`not even sure of their existence`,`From dusk till dawn the days go by`,`missing every movement I lie`,`Only nightmares seem to find me`,`haunting me until I die`,`But I'd choose them over dreams any day`,`for the nightmares don't deceive my head`,`And who wants to live in a world full of lies and deceit`,`when reality could be oh so bittersweet?`]},
+        {title:`fantasy`, verseLength: 2, audioPath: `fantasy`, interactionShapes: [{name:`cloud`, locationX: 50, locationY: 60, width:25}, {name:`lightning`, locationX: 45, locationY: 10, width:8}], lines:[`When he softly dreams`,`his mind takes him places`,`Sweet fantasies to explore`,`with symphonies to keep him company`,`He tries to believe`,`in those fairytales he needs`,`But something speaks to him`,`of lies and deceit`,`Is it real what he sees`,`or merely just a fantasy?`]},
+        {title:`caged heart`, verseLength: 2, audioPath: `cagedheart`, interactionShapes: [{name:`flowers`, locationX: 50, locationY: 42, width:8}, {name:`heart`, locationX: 53, locationY: 37, width:30}], lines:[`I can't deny what I feel`,`even though it shouldn't be real`,`I'd put the pain in a cage`,`thrown away the key`,`It may seem easy`,`but it takes a lot to keep myself sane`,`As I'm feeling kind of queasy`,`and all I can remember is the pain`,`But now the cage has been unlocked`,`and the feelings are coming out like a flood`,`It's too late now to put them back behind bars`,`as there has been a revival of this caged heart`]},
+        {title:`haunting little demons`, verseLength: 4, audioPath: `hauntinglittledemons`, interactionShapes: [{name:`eye`, locationX: 50, locationY: 55, width:20}, {name:`tears`, locationX: 50, locationY: 47, width:25}], lines:[`Did I need to wait`,`for you to decide if you were ready`,`Like a mere object`,`begging for attention`,`Still wonder what you meant`,`in all those midnight texts`,`They felt like little clues`,`a puzzle inside my bed`,`That chaotic state of mind`,`left me incapacitated`,`While my hopes and dreams`,`were ever so infatuated`,`Your indecisive signs`,`gave me so many frustrations`,`While my indecisive mind`,`let me go to far worse places`,`A simple figment of my imagination`,`taken further while I was sleeping`,`Won't you just leave me here`,`with these haunting little demons?`]}
+    ];
     
     //defining some global variables for our project
-    let poseNet, speechRecognition;
+    let poseNet, canvas, context, speechRecognition, scene, camera, renderer, controls, fontWispy, fontPoppinsReg, lampFile, statueFile, cameraAngle, cameraRadius;
+    let dotLocation = [];
+    let statues = [];
+    const $statueInteraction = document.querySelector(`.statint`);
     const $poemContainer = document.querySelector(`.poem`);
     let poemAudio = new Audio();
-    let scene, camera, renderer, controls, fontWispy, fontPoppinsReg, lampFile, statueFile, cameraAngle, cameraRadius;
-    let statues = [];
 
     const loadLamp = () => {
         const lampLoader = new GLTFLoader();
         return new Promise((resolve,reject)=>{
-            lampLoader.load(`./assets/sceneLight.glb`, 
+            lampLoader.load(`./assets/glb/sceneLight.glb`, 
                 function (gltf) {
                     lampFile = gltf.scene;
                     resolve();
@@ -60,13 +40,13 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         return new Promise((resolve,reject)=>{
             //load the BNWispy title font
             const fontLoader = new FontLoader();
-            fontLoader.load('./assets/BNWispy.json', function(response) {
+            fontLoader.load('./assets/fonts/BNWispy.json', function(response) {
             fontWispy = response;
 
             //load the Poppins font
             const ttfLoader = new TTFLoader();
             const ttfFontLoader = new FontLoader();
-            ttfLoader.load('./assets/Poppins-Light.ttf', function(response) {
+            ttfLoader.load('./assets/fonts/Poppins-Light.ttf', function(response) {
                 fontPoppinsReg = ttfFontLoader.parse(response);
             })
             resolve();
@@ -77,8 +57,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
     const loadStatue = () => {
         const statueLoader = new GLTFLoader();
         return new Promise((resolve,reject)=>{
-            statueLoader.load(`./assets/tombLaurier.glb`, function (gltf) {
-                console.log(`statue loaded`);
+            statueLoader.load(`./assets/glb/tombLaurier.glb`, function (gltf) {
                 statueFile = gltf.scene;
                 resolve();
             });
@@ -331,7 +310,6 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
     //function to generate the menu when clicking enter
     const handleClickEnter = e => {
         e.preventDefault();
-        console.log(`clicked enter experience`);
 
         //start playing the audio
         const audio = document.querySelector(`.audio`);
@@ -352,34 +330,18 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         }, 3000);
 
         //launch the speech recognition when pressing space and face detection
-        poseNet.on(`pose`, handlePoseResults);
+        poseNet.on(`pose`, handlePoseResultsCamera);
 
         document.addEventListener('keyup', e => {
             if (e.code === 'Space') {
-            console.log('Space pressed, initialise speech recognition');
             speechRecognition.start();
             }
         });
     }
 
-    // const handleMousemoveWindow = e => {
-    //     //execute function to check if mouse is in left or right 15% of screen, then move canvas accordingly
-    //     if(e.clientX < (window.innerWidth *0.20)){
-    //         // move left
-    //         camera.position.x = cameraRadius * Math.cos( cameraAngle );  
-    //         camera.position.z = cameraRadius * Math.sin( cameraAngle );
-    //         cameraAngle -= 0.003;
-    //     } else if(e.clientX > (window.innerWidth - (window.innerWidth *0.20))) {
-    //         // move right
-    //         camera.position.x = cameraRadius * Math.cos( cameraAngle );  
-    //         camera.position.z = cameraRadius * Math.sin( cameraAngle );
-    //         cameraAngle += 0.003;
-    //     }
-    // }
-
     const launchSpeechRecognition = () => {
         if ("webkitSpeechRecognition" in window) {
-            console.log(`speech recognition available`);
+            console.log(`speech recognition available. Enjoy the Memoria experience.`);
             
             //define new speechRecognition
             speechRecognition = new webkitSpeechRecognition();
@@ -392,14 +354,6 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
             const speechGrammarList = new webkitSpeechGrammarList();
             speechGrammarList.addFromString(grammar, 1)
             speechRecognition.grammars = speechGrammarList;
-            console.log(speechGrammarList[0].weight);
-
-            //temporary fix
-            //focusStatue(1);
-            // setTimeout(function(){
-            //     returnToCenter();
-
-            // }, 10000);
 
             //define the callback functions, log that SR is listening, results etc.
             const $voiceListenContainer = document.querySelector(`.voicelistening`);
@@ -415,61 +369,52 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
             }
 
             speechRecognition.onerror = e => {
-                console.log(`SR has an error`);
-                console.log(e.error);
+                console.log(`SR has an error.`);
             }
 
             speechRecognition.onresult = e => {
                 //show result in console
                 let speechResult = e.results[0][0].transcript;
-                console.log(speechResult);
 
                 //when there is a result, check if it matches one of the 6 numbers, and then call the focusStatue function on that number
                 switch(speechResult){
                     case '1':
                     case 'one':
-                        console.log(`input was one`);
                         focusStatue(0);
                         break;
                     case '2':
                     case 'two':
-                        console.log(`input was two`);
                         focusStatue(1);
                         break;
                     case '3':
                     case 'three':
-                        console.log(`input was three`);
                         focusStatue(2);
                         break;
                     case '4':
                     case 'four':
-                        console.log(`input was four`);
                         focusStatue(3);
                         break;
                     case '5':
                     case 'five':
-                        console.log(`input was five`);
                         focusStatue(4);
                         break;
                     case '6':
                     case 'six':
-                        console.log(`input was six`);
                         focusStatue(5);
                         break;
                     case `return`:
                     case `back`:
-                        console.log(`input was return, start return to center function`);
                         returnToCenter();
                         break;
                     default:
                         //no result matched / found
-                        console.log(`input did not match a wanted result.`);
                         voiceNoResult();
                         break;
                 }
             }
-          
-          }
+        } else {
+            console.log(`Hi developer, Memoria is not available in this browser. Please open the experience in Google Chrome for optimal function.`)
+        }
     }
     
     const voiceNoResult = () => {
@@ -482,25 +427,36 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
     const focusStatue = (voiceInput) => {
         //turn off poseNet
-        poseNet.removeListener(`pose`, handlePoseResults);
+        poseNet.removeListener(`pose`, handlePoseResultsCamera);
 
         //get the coordinates of the statue
         const positionX = statues[voiceInput].position.x;
         const positionZ = statues[voiceInput].position.z;
-        console.log(positionX);
-        console.log(positionZ);
 
         //change target of the camera to the statue, and position of camera to be in front of the statue
         gsap.to(controls.target, {x:positionX, y:45, z:positionZ, duration: 4, ease: "power1.inOut"});
         gsap.to(camera.position, {x:positionX*0.9, y:45, z:positionZ*0.9, duration: 4, ease: "power1.inOut"});
 
-        //do a check to empty the poem container entirely, if the user switched directly from one poem to another
+        //do a check to empty the poem and figure container entirely, if the user switched directly from one poem to another
         if($poemContainer.innerHTML != 0) {
             gsap.to($poemContainer,{autoAlpha: 0, duration: 2});
             setTimeout(function(){
                 $poemContainer.innerHTML = ``;
+                if($poemContainer.classList.contains(`poem--right`)){
+                    $poemContainer.classList.remove(`poem--right`);
+                };
             }, 2000);
-        }
+        };
+        if($statueInteraction.innerHTML != 0) {
+            gsap.to($statueInteraction,{autoAlpha: 0, duration: 2});
+            setTimeout(function(){
+                $statueInteraction.innerHTML = ``;
+
+                if($statueInteraction.classList.contains(`statint--left`)){
+                $statueInteraction.classList.remove(`statint--left`);
+                };
+            }, 2000);
+        };
 
         //stop the poemAudio if already playing
         if (poemAudio.duration > 0 && !poemAudio.paused) {
@@ -510,21 +466,90 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
         //render the poem that matches with the current statue/voiceInput, after gsap camera move
         setTimeout(function(){
+            renderFigures(voiceInput);
             renderPoem(voiceInput);
         }, 6000);
     }
 
+    const renderFigures = async voiceInput => {
+        //show the statint screen
+        $statueInteraction.style.display=`block`;
+        $statueInteraction.style.opacity= 1;
+        $statueInteraction.style.visibility= `visible`;
+        gsap.to($statueInteraction, {autoAlpha: 1, duration: 2, ease: "power1.inOut"});
+
+        const currentPoem = poems[voiceInput];
+
+        //show the canvas
+        canvas.style.visibility = `visible`;
+
+        //set dotlocation to 0 again
+        dotLocation = [];
+
+        //if it's the first poem, move the interaction to the left side
+        if(voiceInput == 0) {
+            $statueInteraction.classList.add(`statint--left`);
+        }
+
+        //loop to render dots and each figure
+        for(let i = 0; i < currentPoem.interactionShapes.length; i++) {
+            //draw dot using location from array, on left / right position of screen depending on where the poem is shown
+            //create a group for each of the figures
+            const statGroup = document.createElement(`div`);
+            statGroup.classList.add(`statint__group`);
+            statGroup.classList.add(`statint__group1`);
+            statGroup.style.marginLeft = `${currentPoem.interactionShapes[i].locationX}%`;
+            statGroup.style.marginTop = `${currentPoem.interactionShapes[i].locationY}%`;
+            $statueInteraction.appendChild(statGroup);
+
+            //get the svg code for the figure and implement it into HTML
+            const figureSVG = await fetch(`./assets/SVG/${currentPoem.audioPath}-${currentPoem.interactionShapes[i].name}.svg`).then(function(response){
+                return response.text();
+            });
+            statGroup.innerHTML = figureSVG;
+
+            //set a width on the path and height auto, add class with number to later identify right figure to draw.
+            const $shape = statGroup.querySelector(`.shape`);
+            $shape.classList.add(`shape${i}`);
+            $shape.style.width = `${currentPoem.interactionShapes[i].width}vw`;
+            $shape.style.left = `-${(currentPoem.interactionShapes[i].width)/2}vw`;
+            $shape.style.top = `-${(currentPoem.interactionShapes[i].width)/2}vw`;
+
+            //add dot in the div
+            const statDot = document.createElement(`img`);
+            statDot.setAttribute(`alt`,`nose figure dot`);
+            statDot.setAttribute(`src`,`assets/dot.png`);
+            statDot.classList.add(`group__dot`);
+            statDot.classList.add(`group__dot${i}`);
+            statGroup.appendChild(statDot);
+
+            const dot = document.querySelector(`.group__dot${i}`);
+            const currentDotLocation = getOffset(dot);
+            //adjusting location with half of width image dot (1rem) to make sure it is centered with the location checker
+            currentDotLocation.left += 8;
+            currentDotLocation.top += 8;
+
+            dotLocation.push(currentDotLocation);
+        }
+        
+        setTimeout(function() {
+            poseNet.on(`pose`, handlePoseResultsDraw);
+        }, 1000);
+    }
+
     //function to render the poem
     const renderPoem = voiceInput => {
-        //log the poem matching to this statue
-        console.log(poems[voiceInput]);
-        console.log(poems[voiceInput].title);
-        console.log(poems[voiceInput].lines);
+        //get the poem matching to this statue
         const currentPoem = poems[voiceInput];
 
         //show the poem class, and render the poem line per line animation
         $poemContainer.style.display=`block`;
         $poemContainer.style.opacity= 1;
+        $poemContainer.style.visibility= `visible`;
+
+        if(voiceInput == 0) {
+            $poemContainer.classList.add(`poem--right`);
+        }
 
         //create title, let appear using opacity styling and gsap
         const poemTitle = document.createElement(`p`);
@@ -534,17 +559,23 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         gsap.to(poemTitle, {autoAlpha: 1, duration: 2, ease: "power1.inOut"});
 
         //start the audio to read poem aloud
-        poemAudio.src = `./assets/poems/${currentPoem.audioPath}`;
+        poemAudio.src = `./assets/poems/poem-${currentPoem.audioPath}.mp3`;
         poemAudio.load();
         poemAudio.onloadeddata = function(){
-            console.log(`loaded the audio`);
             poemAudio.play(); 
            
             renderPoemLines(currentPoem, $poemContainer);
 
+            //show line that tells user what to do with the visuals
+            const $dotsLine = document.createElement(`p`);
+            $dotsLine.classList.add(`poem__message`);
+            $dotsLine.classList.add(`poem__message--instruction`);
+            $dotsLine.textContent = `move your nose to the dots for a visual memory`;
+            $poemContainer.appendChild($dotsLine);
+
             //show line that tells user how to return
             const $returnLine = document.createElement(`p`);
-            $returnLine.classList.add(`poem__return`);
+            $returnLine.classList.add(`poem__message`);
             $returnLine.textContent = `to leave this memory, press space and say return`;
             $poemContainer.appendChild($returnLine);
 
@@ -560,6 +591,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
 
             //make the return appear
             gsap.to($returnLine, {autoAlpha: 1, duration:1});
+            gsap.to($dotsLine, {autoAlpha: 1, duration:1});
         }
     }
 
@@ -580,6 +612,11 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         //hide the poem again and set its contents empty again for next poem
         const $poemContainer = document.querySelector(`.poem`);
         gsap.to($poemContainer, {autoAlpha:0, duration: 2});
+        gsap.to($statueInteraction, {autoAlpha:0, duration: 2});
+
+        //turn off cursor listener and clear canvas
+        poseNet.removeListener(`pose`, handlePoseResultsDraw);
+        context.clearRect(0, 0, canvas.width, canvas.height);
 
         //stop the poemAudio if playing
         if (poemAudio.duration > 0 && !poemAudio.paused) {
@@ -589,6 +626,8 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         setTimeout(function(){
             $poemContainer.style.display = `none`;
             $poemContainer.innerHTML = ``;
+            $statueInteraction.style.display = `none`;
+            $statueInteraction.innerHTML = ``;
 
             //calculate the current camera positions for center
             const positionX = cameraRadius * Math.cos(cameraAngle);  
@@ -600,24 +639,12 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         },2000);
 
         //turn on posenet again
-        poseNet.on(`pose`, handlePoseResults);
+        poseNet.on(`pose`, handlePoseResultsCamera);
     }
 
 
     const modelLoaded = () => {
         console.log(`model loaded!`);
-        //start a loop that detects your face every 200 milliseconds
-        // setInterval(
-        //     function() {
-        //         faceapi.detectSingle(video, (err,results) => {
-        //             console.log(results);
-        //         });
-        //     }, 2000
-        // );
-    }
-
-    const detectResults = () => {
-        
     }
 
     const launchNoseRecognition = async () => {
@@ -643,64 +670,85 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         videoElement.srcObject = videoInput;
         videoElement.play();
 
-        //faceapi = ml5.faceApi(videoElement, detectionOptions, modelLoaded);
-        poseNet = ml5.poseNet(videoElement, modelLoaded);
-        // poseNet.on(`pose`, (results) => {
-        //     if(results.length > 0){
-        //         //console.log(results[0].pose.nose);
-        //         const currentNoseX = results[0].pose.nose.x;
-        //         //check whether the nose is moving left or right
-        //         if(previousNoseX) {
-        //             // //compare previous to current to see whether face is moving left or right
-        //             // if(previousNoseX < currentNoseX){
-        //             //     console.log(`moving left`);
-        //             //     // move left
-        //             //     camera.position.x = cameraRadius * Math.cos( cameraAngle );  
-        //             //     camera.position.z = cameraRadius * Math.sin( cameraAngle );
-        //             //     cameraAngle -= 0.0001;
-        //             // } else {
-        //             //     console.log(`moving right`);
-        //             //     // move right
-        //             //     camera.position.x = cameraRadius * Math.cos( cameraAngle );  
-        //             //     camera.position.z = cameraRadius * Math.sin( cameraAngle );
-        //             //     cameraAngle += 0.0001;
-        //             // }
+        //setup canvas for nose cursor
+        setupNoseCanvas();
 
-        //             if(currentNoseX < window.innerWidth / 2) {
-        //                 camera.position.x = cameraRadius * Math.cos( cameraAngle );  
-        //                 camera.position.z = cameraRadius * Math.sin( cameraAngle );
-        //                 cameraAngle -= 0.002;
-        //             } else {
-        //                 camera.position.x = cameraRadius * Math.cos( cameraAngle );  
-        //                 camera.position.z = cameraRadius * Math.sin( cameraAngle );
-        //                 cameraAngle += 0.002;
-        //             }
-        //             // previousNoseX = currentNoseX;
-        //         } else {
-        //             //set the previousnose value first time
-        //             // previousNoseX = results[0].pose.nose.x;
-        //         }
-        //     }
-            
-        // });
-        
+        //faceapi = ml5.faceApi(videoElement, detectionOptions, modelLoaded);
+        poseNet = ml5.poseNet(videoElement, {flipHorizontal: true}, modelLoaded); 
     }
 
-    const handlePoseResults = (results) => {
+    const setupNoseCanvas = () => {
+        canvas = document.querySelector(`.cursor`);
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        context = canvas.getContext(`2d`);
+    }
+
+    const handlePoseResultsCamera = (results) => {
         if(results.length > 0){
-                //console.log(results[0].pose.nose);
-                const currentNoseX = results[0].pose.nose.x;
-                //check whether the nose is moving left or right
-                if(currentNoseX < window.innerWidth * 0.4) {
-                    camera.position.x = cameraRadius * Math.cos(cameraAngle);  
-                    camera.position.z = cameraRadius * Math.sin(cameraAngle);
-                    cameraAngle += 0.01;
-                } else if(currentNoseX > window.innerWidth * 0.6){
-                    camera.position.x = cameraRadius * Math.cos(cameraAngle);  
-                    camera.position.z = cameraRadius * Math.sin(cameraAngle);
-                    cameraAngle -= 0.01;
+            const currentNoseX = results[0].pose.nose.x;
+            //check whether the nose is moving left or right
+            if(currentNoseX < window.innerWidth * 0.4) {
+                camera.position.x = cameraRadius * Math.cos(cameraAngle);  
+                camera.position.z = cameraRadius * Math.sin(cameraAngle);
+                cameraAngle -= 0.01;
+            } else if(currentNoseX > window.innerWidth * 0.6){
+                camera.position.x = cameraRadius * Math.cos(cameraAngle);  
+                camera.position.z = cameraRadius * Math.sin(cameraAngle);
+                cameraAngle += 0.01;
+            }
+        }
+    }
+
+    const getOffset = (element) => {
+        const rectangle = element.getBoundingClientRect();
+        //return object with top and left content
+        return {
+            left: rectangle.left + window.scrollX,
+            top: rectangle.top + window.scrollY
+        };
+    }
+
+    const handlePoseResultsDraw = (results) => {
+        if(results.length > 0){
+            //clear the canvas before drawing new cursor
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            //show the nose position as a cursor
+            const currentNoseX = results[0].pose.nose.x;
+            const currentNoseY = results[0].pose.nose.y;
+            
+            //draw cursor
+            const radius = 5;
+            context.beginPath();
+            context.arc(currentNoseX, currentNoseY, radius, 0, 2 * Math.PI, false);
+            context.fillStyle = 'white';
+            context.fill();
+
+            context.beginPath();
+            context.arc(currentNoseX, currentNoseY, radius + 12, 0, 2 * Math.PI, false);
+            context.lineWidth = 1;
+            context.strokeStyle = 'white';
+            context.stroke();
+
+            //check if nose location matches dot location (not exact, adding a little margin), in loop for both figures
+            for(let i = 0; i < dotLocation.length; i++) {
+                if(currentNoseX >= (dotLocation[i].left - 10) && currentNoseX <= (dotLocation[i].left + 10)  && currentNoseY >= (dotLocation[i].top - 10) && currentNoseY <= (dotLocation[i].top + 10)) {
+                    //select right shape
+                    const $shape = document.querySelector(`.shape${i}`);
+                    const $path = $shape.querySelector(`.path`);
+                    $path.classList.add(`animate-path`);
+                    let length = $path.getTotalLength();
+                    const $dot = document.querySelector(`.group__dot${i}`);
+
+                    // source: https://medium.com/@sterling.meghan/svg-line-animation-for-beginners-51857c88357f
+                    $path.style.strokeDasharray = length + ' ' + length;
+                    $path.style.strokeDashoffset = length;
+
+                    //dim the dot
+                    gsap.to($dot, {autoAlpha: 0, duration: 0.5});
                 }
             }
+        }
     }
 
     const loadScene = async () => {
@@ -711,7 +759,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         if (hasGetUserMedia()) {
             console.log(`has getUserMedia!`)
         } else {
-            console.log(`getUserMedia() is not supported by the browser.`);
+            console.log(`Hi developer, Memoria is not supported by this browser. Please open this site in Google Chrome.`);
         }
         
         hasGetUserMedia();
@@ -722,7 +770,7 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
         //get the statue from our StatueLoader
         await loadStatue();
         
-        //setting up the scene
+        //setting up the threejs scene
         sceneSetup();
         
         //setup nose detection
@@ -750,8 +798,6 @@ import {OrbitControls} from 'https://cdn.skypack.dev/three@v0.133.1/examples/jsm
     const init = async () => {
         //show the loading screen until screen is rendered, then show menu.
         loadScene();
-
-        //window.addEventListener('mousemove', handleMousemoveWindow);
     }
 
     init();
